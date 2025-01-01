@@ -1,7 +1,7 @@
 -- +goose Up
 CREATE TABLE users (
     id UUID PRIMARY KEY,
-    username VARCHAR(16) NOT NULL CHECK (LENGTH(username) >= 1),
+    username VARCHAR(20) NOT NULL UNIQUE,
     password VARCHAR(60) NOT NULL
 );
 

@@ -14,7 +14,7 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (id, username, password)
 VALUES ($1, $2, $3)
-RETURNING id, username, password
+RETURNING id, username
 `
 
 type CreateUserParams struct {
@@ -23,9 +23,14 @@ type CreateUserParams struct {
 	Password string
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+type CreateUserRow struct {
+	ID       uuid.UUID
+	Username string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
 	row := q.db.QueryRowContext(ctx, createUser, arg.ID, arg.Username, arg.Password)
-	var i User
-	err := row.Scan(&i.ID, &i.Username, &i.Password)
+	var i CreateUserRow
+	err := row.Scan(&i.ID, &i.Username)
 	return i, err
 }
