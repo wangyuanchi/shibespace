@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
+	"github.com/wangyuanchi/shibespace/server/internal/database"
 	"github.com/wangyuanchi/shibespace/server/routes"
 )
 
@@ -19,6 +20,9 @@ func main() {
 	if port == "" {
 		log.Fatal("PORT is not found in the environment")
 	}
+
+	connection, close := database.GetConnection()
+	defer close()
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -33,7 +37,7 @@ func main() {
 
 	v1r := chi.NewRouter()
 	r.Mount("/v1", v1r)
-	routes.RegisterRoutes(v1r)
+	routes.RegisterRoutes(v1r, connection)
 
 	log.Printf("Server starting on port %s", port)
 	err := http.ListenAndServe(":"+port, r)
