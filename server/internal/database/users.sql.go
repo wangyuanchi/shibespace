@@ -34,3 +34,15 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateU
 	err := row.Scan(&i.ID, &i.Username)
 	return i, err
 }
+
+const getUserPasswordHash = `-- name: GetUserPasswordHash :one
+SELECT password FROM users
+WHERE username = $1
+`
+
+func (q *Queries) GetUserPasswordHash(ctx context.Context, username string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getUserPasswordHash, username)
+	var password string
+	err := row.Scan(&password)
+	return password, err
+}

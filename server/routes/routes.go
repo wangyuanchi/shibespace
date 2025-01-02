@@ -7,8 +7,8 @@ import (
 )
 
 /*
-	This function registers the specified routes under the given router.
-	It also takes in a database connection so that the handlers have access to it.
+This function registers the specified routes under the given router.
+It also takes in a database connection so that the handlers have access to it.
 */
 func RegisterRoutes(r *chi.Mux, c *database.Queries) {
 	connection := handlers.DatabaseConnection{
@@ -17,4 +17,5 @@ func RegisterRoutes(r *chi.Mux, c *database.Queries) {
 
 	r.Get("/health", handlers.HealthHandler)
 	r.Post("/users", connection.CreateUserHandler)
+	r.Post("/login", connection.UserLoginHandler)
 }
