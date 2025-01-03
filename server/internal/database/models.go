@@ -5,8 +5,19 @@
 package database
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
+
+type Thread struct {
+	ID               int32
+	Title            string
+	Content          string
+	Author           string
+	CreatedTimestamp time.Time
+	UpdatedTimestamp time.Time
+}
 
 type User struct {
 	ID       uuid.UUID

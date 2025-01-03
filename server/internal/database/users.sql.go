@@ -58,3 +58,14 @@ func (q *Queries) GetUserPasswordHash(ctx context.Context, username string) (str
 	err := row.Scan(&password)
 	return password, err
 }
+
+const getUsername = `-- name: GetUsername :one
+SELECT username FROM users
+WHERE username = $1
+`
+
+func (q *Queries) GetUsername(ctx context.Context, username string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getUsername, username)
+	err := row.Scan(&username)
+	return username, err
+}
