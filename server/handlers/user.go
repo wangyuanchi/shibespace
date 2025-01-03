@@ -6,9 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"regexp"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	"github.com/lib/pq"
 	"github.com/wangyuanchi/shibespace/server/internal/database"
 	"github.com/wangyuanchi/shibespace/server/response"
@@ -67,7 +71,9 @@ func (connection *DatabaseConnection) CreateUserHandler(w http.ResponseWriter, r
 }
 
 /*
-TODO: Add JWT
+This handler authenticates the logging in of users.
+Any failed authentication will be responded with "The username or password is incorrect".
+It returns a JSON web token in the response header as a cookie if authentication is successful.
 */
 func (connection *DatabaseConnection) UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 	userData := userData{}
@@ -100,7 +106,23 @@ func (connection *DatabaseConnection) UserLoginHandler(w http.ResponseWriter, r 
 		return
 	}
 
-	response.RespondWithJSON(w, http.StatusOK, userData.Username)
+	jwt, expire, err := generateJWT(userData.Username)
+	if err != nil {
+		response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to generate JSON web token: %v", err))
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt",
+		Value:    jwt,
+		Path:     "/",
+		Expires:  expire,
+		HttpOnly: true,
+	})
+
+	response.RespondWithJSON(w, http.StatusOK, map[string]string{
+		"username": userData.Username,
+	})
 }
 
 /*
@@ -124,4 +146,32 @@ func userDataValidation(userData userData) error {
 	}
 
 	return nil
+}
+
+/*
+This function generates a JSON web token for the given user.
+The token is returned with its expiration time.
+*/
+func generateJWT(username string) (string, time.Time, error) {
+	godotenv.Load(".env")
+
+	key := os.Getenv("JWT_KEY")
+	if key == "" {
+		return "", time.Time{}, errors.New("JWT_KEY is not found in the environment")
+	}
+
+	expire := time.Now().Add(time.Hour * 1)
+
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256,
+		jwt.MapClaims{
+			"sub": username,
+			"exp": expire.Unix(),
+		})
+
+	jwt, err := t.SignedString([]byte(key))
+	if err != nil {
+		expire = time.Time{}
+	}
+
+	return jwt, expire, err
 }
