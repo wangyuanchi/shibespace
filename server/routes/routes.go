@@ -17,5 +17,6 @@ func RegisterRoutes(r *chi.Mux, c *database.Queries) {
 
 	r.Get("/health", handlers.HealthHandler)
 	r.Post("/users", connection.CreateUserHandler)
-	r.Post("/login", connection.UserLoginHandler)
+	r.Post("/users/auth", connection.AuthenticateUserHandler)
+	r.Get("/users/{username}/id", connection.GetUserIDHandler)
 }

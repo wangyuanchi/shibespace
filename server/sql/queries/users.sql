@@ -6,3 +6,7 @@ RETURNING id, username;
 -- name: GetUserPasswordHash :one
 SELECT password FROM users
 WHERE username = $1;
+
+-- name: GetUserID :one
+SELECT id FROM users
+WHERE username = $1;

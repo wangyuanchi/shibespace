@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
@@ -67,15 +68,15 @@ func (connection *DatabaseConnection) CreateUserHandler(w http.ResponseWriter, r
 		return
 	}
 
-	response.RespondWithJSON(w, http.StatusOK, database.FormattedUserInfo(userInfo))
+	response.RespondWithJSON(w, http.StatusCreated, database.FormattedUserInfo(userInfo))
 }
 
 /*
-This handler authenticates the logging in of users.
+This handler authenticates user data sent from the HTTP request.
 Any failed authentication will be responded with "The username or password is incorrect".
 It returns a JSON web token in the response header as a cookie if authentication is successful.
 */
-func (connection *DatabaseConnection) UserLoginHandler(w http.ResponseWriter, r *http.Request) {
+func (connection *DatabaseConnection) AuthenticateUserHandler(w http.ResponseWriter, r *http.Request) {
 	userData := userData{}
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&userData)
@@ -126,6 +127,28 @@ func (connection *DatabaseConnection) UserLoginHandler(w http.ResponseWriter, r 
 }
 
 /*
+This handler allows users to get their own ID.
+They are not authorized to get any other ID.
+*/
+func (connection *DatabaseConnection) GetUserIDHandler(w http.ResponseWriter, r *http.Request) {
+	statusCode, err := jwtCheck(r)
+	if err != nil {
+		response.RespondWithError(w, statusCode, fmt.Sprintf("Failed jwt check: %v", err))
+		return
+	}
+
+	userID, err := connection.DB.GetUserID(r.Context(), chi.URLParam(r, "username"))
+	if err != nil {
+		response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get user's ID: %v", err))
+		return
+	}
+
+	response.RespondWithJSON(w, http.StatusOK, map[string]uuid.UUID{
+		"id": userID,
+	})
+}
+
+/*
 This function checks if the length of the username is between 3 and 20 characters and
 matches the conventional regex. It also checks if the password is at least 8 characters.
 */
@@ -150,7 +173,7 @@ func userDataValidation(userData userData) error {
 
 /*
 This function generates a JSON web token for the given user.
-The token is returned with its expiration time.
+The jwt is returned with its expiration time.
 */
 func generateJWT(username string) (string, time.Time, error) {
 	godotenv.Load(".env")
@@ -162,16 +185,60 @@ func generateJWT(username string) (string, time.Time, error) {
 
 	expire := time.Now().Add(time.Hour * 1)
 
-	t := jwt.NewWithClaims(jwt.SigningMethodHS256,
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"sub": username,
 			"exp": expire.Unix(),
 		})
 
-	jwt, err := t.SignedString([]byte(key))
+	jwt, err := token.SignedString([]byte(key))
 	if err != nil {
 		expire = time.Time{}
 	}
 
 	return jwt, expire, err
+}
+
+/*
+This function acts as a middleware for checking if the user is authorized.
+It extracts the JSON web token from cookies, parses it,
+then checks it with the username from the path parameter.
+If they match, it returns the 200 status code.
+Otherwise, it returns the relevant status code and the error that happened.
+*/
+func jwtCheck(r *http.Request) (int, error) {
+	godotenv.Load(".env")
+
+	key := os.Getenv("JWT_KEY")
+	if key == "" {
+		return http.StatusInternalServerError, errors.New("JWT_KEY is not found in the environment")
+	}
+
+	cookie, err := r.Cookie("jwt")
+	if err != nil {
+		return http.StatusUnauthorized, errors.New("cookie 'jwt' is not found")
+	}
+
+	token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(key), nil
+	})
+	if err != nil {
+		return http.StatusUnauthorized, fmt.Errorf("failed to parse jwt: %v", err)
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		usernameFromToken := claims["sub"].(string)
+		usernameFromRequest := chi.URLParam(r, "username")
+
+		if usernameFromRequest != usernameFromToken {
+			return http.StatusUnauthorized, errors.New("user mismatch between jwt and path parameter")
+		} else {
+			return http.StatusOK, nil
+		}
+	} else {
+		return http.StatusUnauthorized, errors.New("invalid token")
+	}
 }
