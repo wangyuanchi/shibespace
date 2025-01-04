@@ -38,6 +38,26 @@ func (q *Queries) CreateThread(ctx context.Context, arg CreateThreadParams) (Thr
 	return i, err
 }
 
+const deleteThread = `-- name: DeleteThread :one
+DELETE FROM threads
+WHERE id = $1
+RETURNING id, title, content, creator_id, created_timestamp, updated_timestamp
+`
+
+func (q *Queries) DeleteThread(ctx context.Context, id int32) (Thread, error) {
+	row := q.db.QueryRowContext(ctx, deleteThread, id)
+	var i Thread
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Content,
+		&i.CreatorID,
+		&i.CreatedTimestamp,
+		&i.UpdatedTimestamp,
+	)
+	return i, err
+}
+
 const getThread = `-- name: GetThread :one
 SELECT id, title, content, creator_id, created_timestamp, updated_timestamp FROM threads
 WHERE id = $1

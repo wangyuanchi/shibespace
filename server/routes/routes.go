@@ -24,4 +24,5 @@ func RegisterRoutes(r *chi.Mux, c *database.Queries) {
 	r.Post("/threads", connection.CreateThreadHandler)
 	r.Get("/threads/{thread_id}", connection.GetThreadHandler)
 	r.Patch("/threads/{thread_id}/content", connection.UpdateThreadContentHandler)
+	r.Delete("/threads/{thread_id}", connection.DeleteThreadHandler)
 }

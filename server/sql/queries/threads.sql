@@ -16,3 +16,8 @@ UPDATE threads
 SET content = $2, updated_timestamp = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING content, updated_timestamp;
+
+-- name: DeleteThread :one
+DELETE FROM threads
+WHERE id = $1
+RETURNING *;

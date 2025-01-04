@@ -146,6 +146,39 @@ func (connection *DatabaseConnection) UpdateThreadContentHandler(w http.Response
 	response.RespondWithJSON(w, http.StatusOK, database.FormattedUpdatedThread(UpdatedThread))
 }
 
+func (connection *DatabaseConnection) DeleteThreadHandler(w http.ResponseWriter, r *http.Request) {
+	threadID := chi.URLParam(r, "thread_id")
+	id, err := strconv.Atoi(threadID)
+	if err != nil {
+		response.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Invalid thread ID: %v", err))
+		return
+	}
+
+	creatorID, err := connection.DB.GetThreadCreatorID(r.Context(), int32(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			response.RespondWithError(w, http.StatusNotFound, "The thread does not exist")
+		} else {
+			response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get thread creator ID: %v", err))
+		}
+		return
+	}
+
+	_, statusCode, err := middleware.JWTCheckMatching(connection.DB, r, creatorID.String())
+	if err != nil {
+		response.RespondWithError(w, statusCode, fmt.Sprintf("Failed jwt matching check: %v", err))
+		return
+	}
+
+	_, err = connection.DB.DeleteThread(r.Context(), int32(id))
+	if err != nil {
+		response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to delete thread: %v", err))
+		return
+	}
+
+	response.RespondWithJSON(w, http.StatusNoContent, struct{}{})
+}
+
 /*
 This function checks if the length of the title is between 1 and 255 characters.
 It also checks if the length of the content is at least 1 character.
