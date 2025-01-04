@@ -10,6 +10,15 @@ import (
 	"github.com/google/uuid"
 )
 
+type Comment struct {
+	ID               int32
+	Content          string
+	ThreadID         int32
+	CreatorID        uuid.UUID
+	CreatedTimestamp time.Time
+	UpdatedTimestamp time.Time
+}
+
 type Thread struct {
 	ID               int32
 	Title            string
