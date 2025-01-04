@@ -8,7 +8,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
@@ -96,12 +95,13 @@ func JWTExtractUserID(connection *database.Queries, r *http.Request) (uuid.UUID,
 }
 
 /*
-This function checks if the user is authorized to access a user's resource.
-Specifically, it checks if the userID from jwt matches the 'user_id' path parameter.
-If they match, it returns the userID and 200 status code.
+This function checks if the user is authorized to act as a target user.
+Specifically, it checks if the user ID from jwt matches the target ID supplied,
+which should be the target user's ID in string format.
+If they match, it returns the user ID and 200 status code.
 Otherwise, it returns the zero UUID, relevant status code and the error that happened.
 */
-func JWTCheckMatching(connection *database.Queries, r *http.Request) (uuid.UUID, int, error) {
+func JWTCheckMatching(connection *database.Queries, r *http.Request, targetID string) (uuid.UUID, int, error) {
 	var zeroUUID uuid.UUID
 
 	userIDFromToken, statusCode, err := JWTExtractUserID(connection, r)
@@ -109,9 +109,8 @@ func JWTCheckMatching(connection *database.Queries, r *http.Request) (uuid.UUID,
 		return zeroUUID, statusCode, err
 	}
 
-	userIDFromRequest := chi.URLParam(r, "user_id")
-	if userIDFromRequest != userIDFromToken.String() {
-		return zeroUUID, http.StatusUnauthorized, errors.New("mismatch between jwt and 'user_id' path parameter")
+	if targetID != userIDFromToken.String() {
+		return zeroUUID, http.StatusUnauthorized, errors.New("mismatch between user ID from jwt and target ID")
 	} else {
 		return userIDFromToken, http.StatusOK, nil
 	}

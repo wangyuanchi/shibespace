@@ -19,3 +19,8 @@ type FormattedThread struct {
 	CreatedTimestamp time.Time `json:"created_timestamp"`
 	UpdatedTimestamp time.Time `json:"updated_timestamp"`
 }
+
+type FormattedUpdatedThread struct {
+	Content          string    `json:"content"`
+	UpdatedTimestamp time.Time `json:"updated_timestamp"`
+}

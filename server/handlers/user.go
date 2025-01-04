@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/wangyuanchi/shibespace/server/internal/database"
@@ -128,7 +129,7 @@ This handler allows users to get their own user information.
 They are not authorized to get any other user's information.
 */
 func (connection *DatabaseConnection) GetUserInfoHandler(w http.ResponseWriter, r *http.Request) {
-	userID, statusCode, err := middleware.JWTCheckMatching(connection.DB, r)
+	userID, statusCode, err := middleware.JWTCheckMatching(connection.DB, r, chi.URLParam(r, "user_id"))
 	if err != nil {
 		response.RespondWithError(w, statusCode, fmt.Sprintf("Failed jwt matching check: %v", err))
 		return
