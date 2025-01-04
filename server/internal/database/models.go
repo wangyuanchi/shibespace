@@ -14,7 +14,7 @@ type Thread struct {
 	ID               int32
 	Title            string
 	Content          string
-	Author           string
+	CreatorID        uuid.UUID
 	CreatedTimestamp time.Time
 	UpdatedTimestamp time.Time
 }

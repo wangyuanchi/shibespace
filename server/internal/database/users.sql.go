@@ -37,35 +37,45 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateU
 
 const getUserID = `-- name: GetUserID :one
 SELECT id FROM users
-WHERE username = $1
+WHERE id = $1
 `
 
-func (q *Queries) GetUserID(ctx context.Context, username string) (uuid.UUID, error) {
-	row := q.db.QueryRowContext(ctx, getUserID, username)
-	var id uuid.UUID
+func (q *Queries) GetUserID(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, getUserID, id)
 	err := row.Scan(&id)
 	return id, err
 }
 
-const getUserPasswordHash = `-- name: GetUserPasswordHash :one
-SELECT password FROM users
+const getUserIDAndPassHash = `-- name: GetUserIDAndPassHash :one
+SELECT id, password FROM users
 WHERE username = $1
 `
 
-func (q *Queries) GetUserPasswordHash(ctx context.Context, username string) (string, error) {
-	row := q.db.QueryRowContext(ctx, getUserPasswordHash, username)
-	var password string
-	err := row.Scan(&password)
-	return password, err
+type GetUserIDAndPassHashRow struct {
+	ID       uuid.UUID
+	Password string
 }
 
-const getUsername = `-- name: GetUsername :one
-SELECT username FROM users
-WHERE username = $1
+func (q *Queries) GetUserIDAndPassHash(ctx context.Context, username string) (GetUserIDAndPassHashRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserIDAndPassHash, username)
+	var i GetUserIDAndPassHashRow
+	err := row.Scan(&i.ID, &i.Password)
+	return i, err
+}
+
+const getUserInfo = `-- name: GetUserInfo :one
+SELECT id, username FROM users
+WHERE id = $1
 `
 
-func (q *Queries) GetUsername(ctx context.Context, username string) (string, error) {
-	row := q.db.QueryRowContext(ctx, getUsername, username)
-	err := row.Scan(&username)
-	return username, err
+type GetUserInfoRow struct {
+	ID       uuid.UUID
+	Username string
+}
+
+func (q *Queries) GetUserInfo(ctx context.Context, id uuid.UUID) (GetUserInfoRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserInfo, id)
+	var i GetUserInfoRow
+	err := row.Scan(&i.ID, &i.Username)
+	return i, err
 }

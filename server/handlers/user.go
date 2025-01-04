@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/wangyuanchi/shibespace/server/internal/database"
@@ -71,7 +70,8 @@ func (connection *DatabaseConnection) CreateUserHandler(w http.ResponseWriter, r
 /*
 This handler authenticates user data sent from the HTTP request.
 Any failed authentication will be responded with "The username or password is incorrect".
-It returns a JSON web token in the response header as a cookie if authentication is successful.
+It returns a JSON web token (that stores the user ID) as a cookie if authentication is successful.
+The response body contains the user's username.
 */
 func (connection *DatabaseConnection) AuthenticateUserHandler(w http.ResponseWriter, r *http.Request) {
 	userData := userData{}
@@ -88,23 +88,23 @@ func (connection *DatabaseConnection) AuthenticateUserHandler(w http.ResponseWri
 		return
 	}
 
-	userPasswordHash, err := connection.DB.GetUserPasswordHash(r.Context(), userData.Username)
+	UserIDAndPassHash, err := connection.DB.GetUserIDAndPassHash(r.Context(), userData.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			response.RespondWithError(w, http.StatusUnauthorized, "The username or password is incorrect")
 		} else {
-			response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get user password hash: %v", err))
+			response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get user ID and password hash: %v", err))
 		}
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(userPasswordHash), []byte(userData.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(UserIDAndPassHash.Password), []byte(userData.Password))
 	if err != nil {
 		response.RespondWithError(w, http.StatusUnauthorized, "The username or password is incorrect")
 		return
 	}
 
-	jwt, expire, err := middleware.GenerateJWT(userData.Username)
+	jwt, expire, err := middleware.GenerateJWT(UserIDAndPassHash.ID)
 	if err != nil {
 		response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to generate JSON web token: %v", err))
 		return
@@ -124,25 +124,23 @@ func (connection *DatabaseConnection) AuthenticateUserHandler(w http.ResponseWri
 }
 
 /*
-This handler allows users to get their own ID.
-They are not authorized to get any other ID.
+This handler allows users to get their own user information.
+They are not authorized to get any other user's information.
 */
-func (connection *DatabaseConnection) GetUserIDHandler(w http.ResponseWriter, r *http.Request) {
-	statusCode, err := middleware.JWTCheckMatching(connection.DB, r)
+func (connection *DatabaseConnection) GetUserInfoHandler(w http.ResponseWriter, r *http.Request) {
+	userID, statusCode, err := middleware.JWTCheckMatching(connection.DB, r)
 	if err != nil {
 		response.RespondWithError(w, statusCode, fmt.Sprintf("Failed jwt matching check: %v", err))
 		return
 	}
 
-	userID, err := connection.DB.GetUserID(r.Context(), chi.URLParam(r, "username"))
+	userInfo, err := connection.DB.GetUserInfo(r.Context(), userID)
 	if err != nil {
-		response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get user's ID: %v", err))
+		response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get user information: %v", err))
 		return
 	}
 
-	response.RespondWithJSON(w, http.StatusOK, map[string]uuid.UUID{
-		"id": userID,
-	})
+	response.RespondWithJSON(w, http.StatusOK, database.FormattedUserInfo(userInfo))
 }
 
 /*

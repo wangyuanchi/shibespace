@@ -5,12 +5,12 @@ RETURNING id, username;
 
 -- name: GetUserID :one
 SELECT id FROM users
+WHERE id = $1;
+
+-- name: GetUserIDAndPassHash :one
+SELECT id, password FROM users
 WHERE username = $1;
 
--- name: GetUsername :one
-SELECT username FROM users
-WHERE username = $1;
-
--- name: GetUserPasswordHash :one
-SELECT password FROM users
-WHERE username = $1;
+-- name: GetUserInfo :one
+SELECT id, username FROM users
+WHERE id = $1;

@@ -37,16 +37,16 @@ func (connection *DatabaseConnection) CreateThreadHandler(w http.ResponseWriter,
 		return
 	}
 
-	usernameFromToken, statusCode, err := middleware.JWTExtractUsername(connection.DB, r)
+	userID, statusCode, err := middleware.JWTExtractUserID(connection.DB, r)
 	if err != nil {
 		response.RespondWithError(w, statusCode, fmt.Sprintf("Failed to extract username: %v", err))
 		return
 	}
 
 	thread, err := connection.DB.CreateThread(r.Context(), database.CreateThreadParams{
-		Title:   threadData.Title,
-		Content: threadData.Content,
-		Author:  usernameFromToken,
+		Title:     threadData.Title,
+		Content:   threadData.Content,
+		CreatorID: userID,
 	})
 	if err != nil {
 		response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to add thread to database: %v", err))
