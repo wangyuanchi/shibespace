@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -34,5 +35,61 @@ func (q *Queries) CreateComment(ctx context.Context, arg CreateCommentParams) (C
 		&i.CreatedTimestamp,
 		&i.UpdatedTimestamp,
 	)
+	return i, err
+}
+
+const deleteComment = `-- name: DeleteComment :one
+DELETE FROM comments
+WHERE id = $1
+RETURNING id, content, thread_id, creator_id, created_timestamp, updated_timestamp
+`
+
+func (q *Queries) DeleteComment(ctx context.Context, id int32) (Comment, error) {
+	row := q.db.QueryRowContext(ctx, deleteComment, id)
+	var i Comment
+	err := row.Scan(
+		&i.ID,
+		&i.Content,
+		&i.ThreadID,
+		&i.CreatorID,
+		&i.CreatedTimestamp,
+		&i.UpdatedTimestamp,
+	)
+	return i, err
+}
+
+const getCommentCreatorID = `-- name: GetCommentCreatorID :one
+SELECT creator_id FROM comments
+WHERE id = $1
+`
+
+func (q *Queries) GetCommentCreatorID(ctx context.Context, id int32) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, getCommentCreatorID, id)
+	var creator_id uuid.UUID
+	err := row.Scan(&creator_id)
+	return creator_id, err
+}
+
+const updateCommentContent = `-- name: UpdateCommentContent :one
+UPDATE comments
+SET content = $2, updated_timestamp = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING content, updated_timestamp
+`
+
+type UpdateCommentContentParams struct {
+	ID      int32
+	Content string
+}
+
+type UpdateCommentContentRow struct {
+	Content          string
+	UpdatedTimestamp time.Time
+}
+
+func (q *Queries) UpdateCommentContent(ctx context.Context, arg UpdateCommentContentParams) (UpdateCommentContentRow, error) {
+	row := q.db.QueryRowContext(ctx, updateCommentContent, arg.ID, arg.Content)
+	var i UpdateCommentContentRow
+	err := row.Scan(&i.Content, &i.UpdatedTimestamp)
 	return i, err
 }

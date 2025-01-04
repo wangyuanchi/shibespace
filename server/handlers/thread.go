@@ -25,7 +25,7 @@ type threadContent struct {
 
 /*
 This handler parses the title and content from the request.
-It conducts input validation, then it gets the author through jwt.
+It conducts input validation, then it gets the creator through jwt.
 The entire row for the thread is returned, which additionally includes the
 ID of the thread and the timestamp it was created and last updated.
 */
@@ -134,7 +134,7 @@ func (connection *DatabaseConnection) UpdateThreadContentHandler(w http.Response
 		return
 	}
 
-	UpdatedThread, err := connection.DB.UpdateThreadContent(r.Context(), database.UpdateThreadContentParams{
+	updatedThread, err := connection.DB.UpdateThreadContent(r.Context(), database.UpdateThreadContentParams{
 		ID:      int32(id),
 		Content: threadContent.Content,
 	})
@@ -143,9 +143,13 @@ func (connection *DatabaseConnection) UpdateThreadContentHandler(w http.Response
 		return
 	}
 
-	response.RespondWithJSON(w, http.StatusOK, database.FormattedUpdatedThread(UpdatedThread))
+	response.RespondWithJSON(w, http.StatusOK, database.FormattedUpdatedThread(updatedThread))
 }
 
+/*
+This handler deletes a thread based on the 'thread_id' path parameter.
+Only the creator of the thread is allowed to do delete the thread.
+*/
 func (connection *DatabaseConnection) DeleteThreadHandler(w http.ResponseWriter, r *http.Request) {
 	threadID := chi.URLParam(r, "thread_id")
 	id, err := strconv.Atoi(threadID)
