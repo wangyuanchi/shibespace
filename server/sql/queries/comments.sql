@@ -18,7 +18,7 @@ DELETE FROM comments
 WHERE id = $1
 RETURNING *;
 
--- name: GetThreadCommentsPaginated :many
+-- name: GetCommentsPaginated :many
 SELECT * FROM comments
 WHERE thread_id = $1
 ORDER BY created_timestamp ASC 

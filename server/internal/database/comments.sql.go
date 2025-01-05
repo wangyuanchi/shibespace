@@ -70,21 +70,21 @@ func (q *Queries) GetCommentCreatorID(ctx context.Context, id int32) (uuid.UUID,
 	return creator_id, err
 }
 
-const getThreadCommentsPaginated = `-- name: GetThreadCommentsPaginated :many
+const getCommentsPaginated = `-- name: GetCommentsPaginated :many
 SELECT id, content, thread_id, creator_id, created_timestamp, updated_timestamp FROM comments
 WHERE thread_id = $1
 ORDER BY created_timestamp ASC 
 LIMIT $2 OFFSET $3
 `
 
-type GetThreadCommentsPaginatedParams struct {
+type GetCommentsPaginatedParams struct {
 	ThreadID int32
 	Limit    int32
 	Offset   int32
 }
 
-func (q *Queries) GetThreadCommentsPaginated(ctx context.Context, arg GetThreadCommentsPaginatedParams) ([]Comment, error) {
-	rows, err := q.db.QueryContext(ctx, getThreadCommentsPaginated, arg.ThreadID, arg.Limit, arg.Offset)
+func (q *Queries) GetCommentsPaginated(ctx context.Context, arg GetCommentsPaginatedParams) ([]Comment, error) {
+	rows, err := q.db.QueryContext(ctx, getCommentsPaginated, arg.ThreadID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

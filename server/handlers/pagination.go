@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/wangyuanchi/shibespace/server/internal/database"
 	"github.com/wangyuanchi/shibespace/server/response"
 )
@@ -47,27 +46,15 @@ func (connection *DatabaseConnection) GetThreadsPaginatedHandler(w http.Response
 }
 
 /*
-This handler first checks if the thread exists based on the 'thread_id' path parameter.
-Then, it gets and validates the 'page' and 'limit' query.
-Next, it gets the comments using the queries and 'thread_id'
+This handler first validates the 'thread_id', 'page' and 'limit' query.
+Next, it gets the comments using the queries
 and sorts based on the first created comment.
 The response may be a 204 status code (no content).
 */
-func (connection *DatabaseConnection) GetThreadCommentsPaginatedHandler(w http.ResponseWriter, r *http.Request) {
-	threadID := chi.URLParam(r, "thread_id")
-	id, err := strconv.Atoi(threadID)
+func (connection *DatabaseConnection) GetCommentsPaginatedHandler(w http.ResponseWriter, r *http.Request) {
+	id, statusCode, err := getAndValidateThread(connection, r)
 	if err != nil {
-		response.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Invalid thread ID: %v", err))
-		return
-	}
-
-	_, err = connection.DB.GetThread(r.Context(), int32(id))
-	if err != nil {
-		if err == sql.ErrNoRows {
-			response.RespondWithError(w, http.StatusNotFound, "The thread does not exist")
-		} else {
-			response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get thread: %v", err))
-		}
+		response.RespondWithError(w, statusCode, fmt.Sprintf("Failed to get or validate thread: %v", err))
 		return
 	}
 
@@ -83,7 +70,7 @@ func (connection *DatabaseConnection) GetThreadCommentsPaginatedHandler(w http.R
 		return
 	}
 
-	comments, err := connection.DB.GetThreadCommentsPaginated(r.Context(), database.GetThreadCommentsPaginatedParams{
+	comments, err := connection.DB.GetCommentsPaginated(r.Context(), database.GetCommentsPaginatedParams{
 		ThreadID: int32(id),
 		Limit:    int32(l),
 		Offset:   int32((p - 1) * l),
@@ -138,4 +125,28 @@ func validatePageAndLimit(p, l int) error {
 		return errors.New("limit value must be at least 1")
 	}
 	return nil
+}
+
+/*
+This function gets the 'thread_id' query from the URL,
+then checks if the thread actually exists.
+If it does, it returns the thread ID and the 200 status code.
+*/
+func getAndValidateThread(connection *DatabaseConnection, r *http.Request) (id, statusCode int, err error) {
+	threadID := r.URL.Query().Get("thread_id")
+	id, err = strconv.Atoi(threadID)
+	if err != nil {
+		return 0, http.StatusBadRequest, fmt.Errorf("invalid thread ID: %v", err)
+	}
+
+	_, err = connection.DB.GetThread(r.Context(), int32(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, http.StatusNotFound, errors.New("the thread does not exist")
+		} else {
+			return 0, http.StatusInternalServerError, fmt.Errorf("failed to get thread: %v", err)
+		}
+	}
+
+	return id, http.StatusOK, nil
 }
