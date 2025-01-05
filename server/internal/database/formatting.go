@@ -38,3 +38,31 @@ type FormattedUpdatedComment struct {
 	Content          string    `json:"content"`
 	UpdatedTimestamp time.Time `json:"updated_timestamp"`
 }
+
+/*
+This function loops through the slice of threads and formats each thread element.
+*/
+func FormatThreads(threads []Thread) []FormattedThread {
+	var formattedThreads []FormattedThread
+
+	for _, thread := range threads {
+		formattedThread := FormattedThread(thread)
+		formattedThreads = append(formattedThreads, formattedThread)
+	}
+
+	return formattedThreads
+}
+
+/*
+This function loops through the slice of comments and formats each comment element.
+*/
+func FormatComments(comments []Comment) []FormattedComment {
+	var formattedComments []FormattedComment
+
+	for _, comment := range comments {
+		formattedComment := FormattedComment(comment)
+		formattedComments = append(formattedComments, formattedComment)
+	}
+
+	return formattedComments
+}

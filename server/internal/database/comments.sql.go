@@ -70,6 +70,49 @@ func (q *Queries) GetCommentCreatorID(ctx context.Context, id int32) (uuid.UUID,
 	return creator_id, err
 }
 
+const getThreadCommentsPaginated = `-- name: GetThreadCommentsPaginated :many
+SELECT id, content, thread_id, creator_id, created_timestamp, updated_timestamp FROM comments
+WHERE thread_id = $1
+ORDER BY created_timestamp ASC 
+LIMIT $2 OFFSET $3
+`
+
+type GetThreadCommentsPaginatedParams struct {
+	ThreadID int32
+	Limit    int32
+	Offset   int32
+}
+
+func (q *Queries) GetThreadCommentsPaginated(ctx context.Context, arg GetThreadCommentsPaginatedParams) ([]Comment, error) {
+	rows, err := q.db.QueryContext(ctx, getThreadCommentsPaginated, arg.ThreadID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Comment
+	for rows.Next() {
+		var i Comment
+		if err := rows.Scan(
+			&i.ID,
+			&i.Content,
+			&i.ThreadID,
+			&i.CreatorID,
+			&i.CreatedTimestamp,
+			&i.UpdatedTimestamp,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateCommentContent = `-- name: UpdateCommentContent :one
 UPDATE comments
 SET content = $2, updated_timestamp = CURRENT_TIMESTAMP

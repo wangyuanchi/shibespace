@@ -89,6 +89,47 @@ func (q *Queries) GetThreadCreatorID(ctx context.Context, id int32) (uuid.UUID, 
 	return creator_id, err
 }
 
+const getThreadsPaginated = `-- name: GetThreadsPaginated :many
+SELECT id, title, content, creator_id, created_timestamp, updated_timestamp FROM threads
+ORDER BY updated_timestamp DESC 
+LIMIT $1 OFFSET $2
+`
+
+type GetThreadsPaginatedParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) GetThreadsPaginated(ctx context.Context, arg GetThreadsPaginatedParams) ([]Thread, error) {
+	rows, err := q.db.QueryContext(ctx, getThreadsPaginated, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Thread
+	for rows.Next() {
+		var i Thread
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Content,
+			&i.CreatorID,
+			&i.CreatedTimestamp,
+			&i.UpdatedTimestamp,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateThreadContent = `-- name: UpdateThreadContent :one
 UPDATE threads
 SET content = $2, updated_timestamp = CURRENT_TIMESTAMP

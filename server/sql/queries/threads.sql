@@ -21,3 +21,8 @@ RETURNING content, updated_timestamp;
 DELETE FROM threads
 WHERE id = $1
 RETURNING *;
+
+-- name: GetThreadsPaginated :many
+SELECT * FROM threads
+ORDER BY updated_timestamp DESC 
+LIMIT $1 OFFSET $2;

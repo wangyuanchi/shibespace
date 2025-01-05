@@ -17,3 +17,9 @@ RETURNING content, updated_timestamp;
 DELETE FROM comments
 WHERE id = $1
 RETURNING *;
+
+-- name: GetThreadCommentsPaginated :many
+SELECT * FROM comments
+WHERE thread_id = $1
+ORDER BY created_timestamp ASC 
+LIMIT $2 OFFSET $3;
