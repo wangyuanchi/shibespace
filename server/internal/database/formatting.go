@@ -15,6 +15,7 @@ type FormattedThread struct {
 	ID               int32     `json:"id"`
 	Title            string    `json:"title"`
 	Content          string    `json:"content"`
+	Tags             []string  `json:"tags"`
 	CreatorID        uuid.UUID `json:"creator_id"`
 	CreatedTimestamp time.Time `json:"created_timestamp"`
 	UpdatedTimestamp time.Time `json:"updated_timestamp"`

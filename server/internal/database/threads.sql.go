@@ -10,27 +10,35 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 const createThread = `-- name: CreateThread :one
-INSERT INTO threads (title, content, creator_id)
-VALUES ($1, $2, $3)
-RETURNING id, title, content, creator_id, created_timestamp, updated_timestamp
+INSERT INTO threads (title, content, tags, creator_id)
+VALUES ($1, $2, $3, $4)
+RETURNING id, title, content, tags, creator_id, created_timestamp, updated_timestamp
 `
 
 type CreateThreadParams struct {
 	Title     string
 	Content   string
+	Tags      []string
 	CreatorID uuid.UUID
 }
 
 func (q *Queries) CreateThread(ctx context.Context, arg CreateThreadParams) (Thread, error) {
-	row := q.db.QueryRowContext(ctx, createThread, arg.Title, arg.Content, arg.CreatorID)
+	row := q.db.QueryRowContext(ctx, createThread,
+		arg.Title,
+		arg.Content,
+		pq.Array(arg.Tags),
+		arg.CreatorID,
+	)
 	var i Thread
 	err := row.Scan(
 		&i.ID,
 		&i.Title,
 		&i.Content,
+		pq.Array(&i.Tags),
 		&i.CreatorID,
 		&i.CreatedTimestamp,
 		&i.UpdatedTimestamp,
@@ -41,7 +49,7 @@ func (q *Queries) CreateThread(ctx context.Context, arg CreateThreadParams) (Thr
 const deleteThread = `-- name: DeleteThread :one
 DELETE FROM threads
 WHERE id = $1
-RETURNING id, title, content, creator_id, created_timestamp, updated_timestamp
+RETURNING id, title, content, tags, creator_id, created_timestamp, updated_timestamp
 `
 
 func (q *Queries) DeleteThread(ctx context.Context, id int32) (Thread, error) {
@@ -51,6 +59,7 @@ func (q *Queries) DeleteThread(ctx context.Context, id int32) (Thread, error) {
 		&i.ID,
 		&i.Title,
 		&i.Content,
+		pq.Array(&i.Tags),
 		&i.CreatorID,
 		&i.CreatedTimestamp,
 		&i.UpdatedTimestamp,
@@ -59,7 +68,7 @@ func (q *Queries) DeleteThread(ctx context.Context, id int32) (Thread, error) {
 }
 
 const getThread = `-- name: GetThread :one
-SELECT id, title, content, creator_id, created_timestamp, updated_timestamp FROM threads
+SELECT id, title, content, tags, creator_id, created_timestamp, updated_timestamp FROM threads
 WHERE id = $1
 `
 
@@ -70,6 +79,7 @@ func (q *Queries) GetThread(ctx context.Context, id int32) (Thread, error) {
 		&i.ID,
 		&i.Title,
 		&i.Content,
+		pq.Array(&i.Tags),
 		&i.CreatorID,
 		&i.CreatedTimestamp,
 		&i.UpdatedTimestamp,
@@ -90,18 +100,20 @@ func (q *Queries) GetThreadCreatorID(ctx context.Context, id int32) (uuid.UUID, 
 }
 
 const getThreadsPaginated = `-- name: GetThreadsPaginated :many
-SELECT id, title, content, creator_id, created_timestamp, updated_timestamp FROM threads
+SELECT id, title, content, tags, creator_id, created_timestamp, updated_timestamp FROM threads
+WHERE tags @> $1::VARCHAR(35)[]
 ORDER BY updated_timestamp DESC 
-LIMIT $1 OFFSET $2
+LIMIT $2 OFFSET $3
 `
 
 type GetThreadsPaginatedParams struct {
-	Limit  int32
-	Offset int32
+	Column1 []string
+	Limit   int32
+	Offset  int32
 }
 
 func (q *Queries) GetThreadsPaginated(ctx context.Context, arg GetThreadsPaginatedParams) ([]Thread, error) {
-	rows, err := q.db.QueryContext(ctx, getThreadsPaginated, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getThreadsPaginated, pq.Array(arg.Column1), arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -113,6 +125,7 @@ func (q *Queries) GetThreadsPaginated(ctx context.Context, arg GetThreadsPaginat
 			&i.ID,
 			&i.Title,
 			&i.Content,
+			pq.Array(&i.Tags),
 			&i.CreatorID,
 			&i.CreatedTimestamp,
 			&i.UpdatedTimestamp,

@@ -15,8 +15,9 @@ import (
 )
 
 type threadData struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	Title   string   `json:"title"`
+	Content string   `json:"content"`
+	Tags    []string `json:"tags"`
 }
 
 type threadContent struct {
@@ -24,7 +25,7 @@ type threadContent struct {
 }
 
 /*
-This handler parses the title and content from the request.
+This handler parses the title, content and tags from the request.
 It conducts input validation, then it gets the creator through jwt.
 The entire row for the thread is returned, which additionally includes the
 ID of the thread and the timestamp it was created and last updated.
@@ -53,6 +54,7 @@ func (connection *DatabaseConnection) CreateThreadHandler(w http.ResponseWriter,
 	thread, err := connection.DB.CreateThread(r.Context(), database.CreateThreadParams{
 		Title:     threadData.Title,
 		Content:   threadData.Content,
+		Tags:      threadData.Tags,
 		CreatorID: userID,
 	})
 	if err != nil {
@@ -122,6 +124,7 @@ func (connection *DatabaseConnection) UpdateThreadContentHandler(w http.Response
 	err = threadDataValidation(threadData{
 		Title:   "Valid Title",
 		Content: threadContent.Content,
+		Tags:    []string{},
 	})
 	if err != nil {
 		response.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Invalid input: %v", err))
@@ -186,10 +189,13 @@ func (connection *DatabaseConnection) DeleteThreadHandler(w http.ResponseWriter,
 /*
 This function checks if the length of the title is between 1 and 255 characters.
 It also checks if the length of the content is at least 1 character.
+Lastly, it checks that the tags slice is not nil and that
+there are at most 5 tags, each between 1 and 35 characters.
 */
 func threadDataValidation(threadData threadData) error {
 	title := threadData.Title
 	content := threadData.Content
+	tags := threadData.Tags
 
 	if len(title) < 1 || len(title) > 255 {
 		return errors.New("title must be between 1 and 255 characters long")
@@ -197,6 +203,20 @@ func threadDataValidation(threadData threadData) error {
 
 	if len(content) < 1 {
 		return errors.New("content must be at least 1 character long")
+	}
+
+	if tags == nil {
+		return errors.New("tags slice cannot be nil, please provide an empty slice of strings")
+	}
+
+	if len(tags) > 5 {
+		return errors.New("number of tags must be at most 5")
+	}
+
+	for _, tag := range tags {
+		if len(tag) < 1 || len(tag) > 35 {
+			return errors.New("all tags must be between 1 and 35 characters long")
+		}
 	}
 
 	return nil

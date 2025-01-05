@@ -6,17 +6,24 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/wangyuanchi/shibespace/server/internal/database"
 	"github.com/wangyuanchi/shibespace/server/response"
 )
 
 /*
-This handler gets and validates the 'page' and 'limit' query.
+This handler first validates the 'tags' (CSV), 'page' and 'limit' query.
 Then, it gets the threads using the queries and sort based on the latest updated thread.
 The response may be a 204 status code (no content).
 */
 func (connection *DatabaseConnection) GetThreadsPaginatedHandler(w http.ResponseWriter, r *http.Request) {
+	tags, err := getAndValidateTags(r)
+	if err != nil {
+		response.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Failed to get and validate tags: %v", err))
+		return
+	}
+
 	p, l, err := getPageAndLimit(r)
 	if err != nil {
 		response.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Failed to get page and limit: %v", err))
@@ -30,8 +37,9 @@ func (connection *DatabaseConnection) GetThreadsPaginatedHandler(w http.Response
 	}
 
 	threads, err := connection.DB.GetThreadsPaginated(r.Context(), database.GetThreadsPaginatedParams{
-		Limit:  int32(l),
-		Offset: int32((p - 1) * l),
+		Column1: tags,
+		Limit:   int32(l),
+		Offset:  int32((p - 1) * l),
 	})
 	if err != nil {
 		response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get threads: %v", err))
@@ -46,9 +54,8 @@ func (connection *DatabaseConnection) GetThreadsPaginatedHandler(w http.Response
 }
 
 /*
-This handler first validates the 'thread_id', 'page' and 'limit' query.
-Next, it gets the comments using the queries
-and sorts based on the first created comment.
+This handler first validates the 'thread_id' (compulsory), 'page' and 'limit' query.
+Next, it gets the comments using the queries and sorts based on the first created comment.
 The response may be a 204 status code (no content).
 */
 func (connection *DatabaseConnection) GetCommentsPaginatedHandler(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +96,7 @@ func (connection *DatabaseConnection) GetCommentsPaginatedHandler(w http.Respons
 
 /*
 This function gets the 'page' and 'limit' query from the URL.
-The default values are 1 and 10 respectively.
+The default return values are 1 and 10 respectively.
 */
 func getPageAndLimit(r *http.Request) (p, l int, err error) {
 	page := r.URL.Query().Get("page")
@@ -125,6 +132,31 @@ func validatePageAndLimit(p, l int) error {
 		return errors.New("limit value must be at least 1")
 	}
 	return nil
+}
+
+/*
+This function gets the 'tags' query from the URL.
+It will be treated as a CSV, and the values are split into a []string, then validated.
+The default return value will be an empty string slice, i.e. no tags.
+*/
+func getAndValidateTags(r *http.Request) ([]string, error) {
+	tags := r.URL.Query().Get("tags")
+	t := strings.Split(tags, ",")
+
+	if tags == "" {
+		t = []string{}
+	}
+
+	err := threadDataValidation(threadData{
+		Title:   "Valid Title",
+		Content: "Valid Content",
+		Tags:    t,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
 }
 
 /*

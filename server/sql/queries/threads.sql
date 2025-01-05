@@ -1,6 +1,6 @@
 -- name: CreateThread :one
-INSERT INTO threads (title, content, creator_id)
-VALUES ($1, $2, $3)
+INSERT INTO threads (title, content, tags, creator_id)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 
 -- name: GetThread :one
@@ -24,5 +24,6 @@ RETURNING *;
 
 -- name: GetThreadsPaginated :many
 SELECT * FROM threads
+WHERE tags @> $1::VARCHAR(35)[]
 ORDER BY updated_timestamp DESC 
-LIMIT $1 OFFSET $2;
+LIMIT $2 OFFSET $3;
