@@ -36,6 +36,7 @@ This API uses **JSON Web Tokens (JWT)** for authentication. Users must log in at
 #### `GET /health`
 
 **Description:** Checks whether the server is alive.
+
 **Example Response:**
 
 ```json
@@ -52,6 +53,7 @@ HTTP/1.1 200 OK
 #### `POST /users`
 
 **Description:** Creates a user.
+
 **Example Request:**
 
 ```json
@@ -77,11 +79,13 @@ HTTP/1.1 201 Created
 ```
 
 **Relevant Errors:**
+
 `HTTP/1.1 409 Conflict`: Username is already taken
 
 #### `POST /users/auth`
 
 **Description:** Authenticates a user.
+
 **Example Request:**
 
 ```json
@@ -107,12 +111,15 @@ Set-Cookie: jwt=<Header>.<Payload>.<Signature>; HttpOnly
 ```
 
 **Relevant Errors:**
+
 `HTTP/1.1 401 Unauthorized`: The username or password is incorrect
 
 #### `GET /users/{user_id}`
 
 **Description:** Gets a single user.
+
 **Authentication Requirements:** Users can only get their own information.
+
 **Parameter Requirements:** NA
 
 **Example Response:**
@@ -126,6 +133,7 @@ HTTP/1.1 200 OK
 ```
 
 **Relevant Errors:**
+
 `HTTP/1.1 401 Unauthorized`: Please refer to [authentication errors](#authentication-errors).
 
 ### threads
@@ -139,7 +147,9 @@ HTTP/1.1 200 OK
 #### `POST /threads`
 
 **Description:** Creates a thread.
+
 **Authentication Requirements:** User must be authenticated at the point of creation.
+
 **Example Request:**
 
 ```json
@@ -172,12 +182,15 @@ HTTP/1.1 201 Created
 ```
 
 **Relevant Errors:**
+
 `HTTP/1.1 400 Bad Request`: tags slice cannot be nil, please provide an empty slice of strings
+
 `HTTP/1.1 401 Unauthorized`: Please refer to [authentication errors](#authentication-errors).
 
 #### `GET /threads`
 
 **Description:** Gets threads based on the supplied queries, they are sorted based on the latest updated thread.
+
 **Query Requirements:**
 
 - `tags` _Default: []_: Must have at most 5 string segments separated with commas (CSV), with the length of each segment between 1 and 35 characters long
@@ -213,6 +226,7 @@ HTTP/1.1 204 No Content
 #### `GET /threads/{thread_id}`
 
 **Description:** Gets a single thread.
+
 **Parameter Requirements:** `thread_id` must be convertable to an integer
 
 **Example Response:**
@@ -231,12 +245,15 @@ HTTP/1.1 200 OK
 ```
 
 **Relevant Errors:**
+
 `HTTP/1.1 404 Not Found`: The thread does not exist
 
 #### `PATCH /threads/{thread_id}/content`
 
 **Description:** Updates the content of a thread.
+
 **Authentication Requirements:** Users can only update the content of threads created by them.
+
 **Parameter Requirements:** `thread_id` must be convertable to an integer
 
 **Example Request:**
@@ -262,13 +279,17 @@ HTTP/1.1 200 OK
 ```
 
 **Relevant Errors:**
+
 `HTTP/1.1 401 Unauthorized`: Please refer to [authentication errors](#authentication-errors).
+
 `HTTP/1.1 404 Not Found`: The thread does not exist
 
 #### `DELETE /threads/{thread_id}`
 
 **Description:** Deletes a thread.
+
 **Authentication Requirements:** Users can only delete threads created by them.
+
 **Parameter Requirements:** `thread_id` must be convertable to an integer
 
 **Example Response:**
@@ -278,7 +299,9 @@ HTTP/1.1 204 No Content
 ```
 
 **Relevant Errors:**
+
 `HTTP/1.1 401 Unauthorized`: Please refer to [authentication errors](#authentication-errors).
+
 `HTTP/1.1 404 Not Found`: The thread does not exist
 
 ### comments
@@ -291,7 +314,9 @@ HTTP/1.1 204 No Content
 #### `POST /comments`
 
 **Description:** Creates a comment.
+
 **Authentication Requirements:** User must be authenticated at the point of creation.
+
 **Example Request:**
 
 ```json
@@ -321,12 +346,15 @@ HTTP/1.1 201 Created
 ```
 
 **Relevant Errors:**
+
 `HTTP/1.1 401 Unauthorized`: Please refer to [authentication errors](#authentication-errors).
+
 `HTTP/1.1 404 Not Found`: The thread does not exist
 
 #### `GET /comments`
 
 **Description:** Gets comments based on the supplied queries, they are sorted based on the first created comment.
+
 **Query Requirements:**
 
 - `thread_id` _Compulsory_: String must be convertable to an integer
@@ -359,12 +387,15 @@ HTTP/1.1 204 No Content
 ```
 
 **Relevant Errors:**
+
 `HTTP/1.1 404 Not Found`: The thread does not exist
 
 #### `PATCH /comments/{comment_id}/content`
 
 **Description:** Updates the content of a comment.
+
 **Authentication Requirements:** Users can only update the content of comments created by them.
+
 **Parameter Requirements:** `comment_id` must be convertable to an integer
 
 **Example Request:**
@@ -390,13 +421,17 @@ HTTP/1.1 200 OK
 ```
 
 **Relevant Errors:**
+
 `HTTP/1.1 401 Unauthorized`: Please refer to [authentication errors](#authentication-errors).
+
 `HTTP/1.1 404 Not Found`: The comment does not exist
 
 #### `DELETE /comments/{comment_id}`
 
 **Description:** Deletes a comment.
+
 **Authentication Requirements:** Users can only delete comments created by them.
+
 **Parameter Requirements:** `comment_id` must be convertable to an integer
 
 **Example Response:**
@@ -406,7 +441,9 @@ HTTP/1.1 204 No Content
 ```
 
 **Relevant Errors:**
+
 `HTTP/1.1 401 Unauthorized`: Please refer to [authentication errors](#authentication-errors).
+
 `HTTP/1.1 404 Not Found`: The comment does not exist
 
 ---
@@ -431,6 +468,9 @@ HTTP/1.1 500 Internal Server Error
 ### Authentication Errors
 
 `HTTP/1.1 401 Unauthorized`: cookie 'jwt' is not found
+
 `HTTP/1.1 401 Unauthorized`: failed to parse jwt
+
 `HTTP/1.1 401 Unauthorized`: invalid token
+
 `HTTP/1.1 401 Unauthorized`: mismatch between user ID from jwt and target ID
