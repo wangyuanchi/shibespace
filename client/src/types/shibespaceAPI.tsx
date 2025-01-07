@@ -7,6 +7,6 @@ export interface UserData {
   password: string;
 }
 
-export interface Authenticated {
+export interface User {
   username: string;
 }

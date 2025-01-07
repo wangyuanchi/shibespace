@@ -5,17 +5,20 @@ import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
 import NotFound from "./pages/NotFound";
 import { ROUTEPATHS } from "./types/types";
+import { UserProvider } from "./components/UserProvider";
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path={ROUTEPATHS.HOME} element={<Home />} />
-        <Route path={ROUTEPATHS.LOGIN} element={<Login />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+    <UserProvider>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path={ROUTEPATHS.HOME} element={<Home />} />
+          <Route path={ROUTEPATHS.LOGIN} element={<Login />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </UserProvider>
   );
 };
 

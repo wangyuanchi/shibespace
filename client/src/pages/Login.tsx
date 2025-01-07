@@ -1,4 +1,3 @@
-import { Authenticated, ErrorResponse, UserData } from "../types/shibespaceAPI";
 import {
   Box,
   Button,
@@ -8,16 +7,19 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { ErrorResponse, User, UserData } from "../types/shibespaceAPI";
 
 import { ROUTEPATHS } from "../types/types";
 import { StatusCodes } from "http-status-codes";
 import { flushSync } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useUser } from "../components/UserProvider";
 
 const Login: React.FC = () => {
   const [errorText, setErrorText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const { setUsername } = useUser();
   const navigate = useNavigate();
 
   const handleLogin = async (formData: FormData): Promise<void> => {
@@ -52,7 +54,9 @@ const Login: React.FC = () => {
           throw new Error(errorResponse.error);
         }
       } else {
-        const authenticated = (await response.json()) as Authenticated;
+        // Store username in UserContext and redirect back to the home page
+        const user = (await response.json()) as User;
+        setUsername(user.username);
         navigate(ROUTEPATHS.HOME);
       }
     } catch (error: unknown) {
