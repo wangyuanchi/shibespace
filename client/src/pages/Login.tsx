@@ -8,35 +8,35 @@ import {
   Typography,
 } from "@mui/material";
 import { ErrorResponse, User, UserData } from "../types/shibespaceAPI";
+import { signalLogin, useUser } from "../components/UserProvider";
 
 import { ROUTEPATHS } from "../types/types";
 import { StatusCodes } from "http-status-codes";
 import { flushSync } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useUser } from "../components/UserProvider";
 
 const Login: React.FC = () => {
   const [errorText, setErrorText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const { setUsername } = useUser();
+  const { startExpiryCheck } = useUser();
   const navigate = useNavigate();
 
   const handleLogin = async (formData: FormData): Promise<void> => {
+    // Prevent state setter function being batched, allowing circular progress to appear.
+    flushSync(() => setLoading(true));
+
     const userData: UserData = {
       username: formData.get("username") as string,
       password: formData.get("password") as string,
     };
-
-    // Prevent state setter function being batched
-    flushSync(() => setLoading(true));
 
     try {
       const response = await fetch(
         import.meta.env.VITE_SHIBESPACEAPI_BASEURL + "/users/auth",
         {
           method: "POST",
-          mode: "cors",
+          credentials: "include", // To get the jwt cookie
           headers: {
             "content-type": "application/json",
           },
@@ -49,14 +49,21 @@ const Login: React.FC = () => {
       if (!response.ok) {
         if (response.status === StatusCodes.UNAUTHORIZED) {
           setErrorText("The username or password is incorrect");
+          console.error("The username or password is incorrect");
         } else {
           const errorResponse = (await response.json()) as ErrorResponse;
           throw new Error(errorResponse.error);
         }
       } else {
-        // Store username in UserContext and redirect back to the home page
         const user = (await response.json()) as User;
-        setUsername(user.username);
+
+        // Signal a login by storing the username with calculated jwt expiry timing
+        // according to shibespaceAPI in local storage and starting the expiry check
+        // to allow this signal to be detected.
+        signalLogin(user.username);
+        startExpiryCheck();
+
+        // Redirect back to the home page
         navigate(ROUTEPATHS.HOME);
       }
     } catch (error: unknown) {
@@ -65,10 +72,11 @@ const Login: React.FC = () => {
       } else {
         console.error("An unknown error occured:", error);
       }
-      setErrorText("Something went wrong, please try again later");
+
+      setErrorText("Something went wrong, please try again later"); // Generalize errors
     }
 
-    setLoading(false);
+    setLoading(false); // Stop the circular progress
   };
 
   return (
