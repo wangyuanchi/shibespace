@@ -4,8 +4,8 @@ const Home: React.FC = () => {
   return (
     <Container
       sx={{
-        marginTop: { xs: "56px", sm: "64px" },
-        paddingTop: "2rem",
+        mt: { xs: "56px", sm: "64px" },
+        pt: 4,
       }}
     >
       <Typography variant="body1">Home</Typography>
