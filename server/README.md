@@ -200,6 +200,7 @@ HTTP/1.1 201 Created
 **Example Request URLs:**
 
 > /threads
+
 > /threads?tags=important,starred&page=1&limit=1
 
 **Example Response:**
@@ -364,6 +365,7 @@ HTTP/1.1 201 Created
 **Example Request URLs:**
 
 > /comments?thread_id=1
+
 > /comments?thread_id=1&page=1&limit=1
 
 **Example Response:**
