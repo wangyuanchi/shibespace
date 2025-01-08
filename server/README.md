@@ -65,7 +65,7 @@ HTTP/1.1 200 OK
 
 **Attribute Requirements:**
 
-- `username` _string_: Must be between 3 and 20 characters long
+- `username` _string_: Must be between 3 and 20 characters long and matches the regex ^[a-zA-Z0-9_-]+$ (only letters, numbers, underscores, and hyphens)
 - `password` _string_: Must be at least 8 characters long
 
 **Example Response:**

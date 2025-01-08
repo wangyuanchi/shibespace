@@ -106,7 +106,7 @@ const Login: React.FC = () => {
         }}
       >
         <form action={handleLogin}>
-          <FormControl sx={{ width: "400px" }}>
+          <FormControl sx={{ width: "435px" }}>
             <TextField
               name="username"
               label="Username"

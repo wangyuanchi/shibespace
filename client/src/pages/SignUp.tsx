@@ -41,14 +41,24 @@ const SignUp: React.FC = () => {
       setIsValidPassword(true);
     });
 
+    const regex = new RegExp("^[a-zA-Z0-9_-]+$");
+
+    // Input validation is put together so that the errors can be shown in sync
     if (
       userData.username.length < 3 ||
       userData.username.length > 20 ||
+      !regex.test(userData.username) ||
       userData.password.length < 8
     ) {
       if (userData.username.length < 3 || userData.username.length > 20) {
         setIsValidUsername(false);
         setUsernameError("Username must be between 3 and 20 characters long");
+      }
+      if (!regex.test(userData.username)) {
+        setIsValidUsername(false);
+        setUsernameError(
+          "Username can only contain letters, numbers, underscores, and hyphens"
+        );
       }
       if (userData.password.length < 8) {
         setIsValidPassword(false);
@@ -119,7 +129,7 @@ const SignUp: React.FC = () => {
           </Typography>
         ) : (
           <form action={handleSignUp}>
-            <FormControl sx={{ width: "400px" }}>
+            <FormControl sx={{ width: "435px" }}>
               <TextField
                 name="username"
                 label="Username"
