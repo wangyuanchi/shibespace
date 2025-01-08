@@ -4,6 +4,7 @@ import {
   CircularProgress,
   Container,
   FormControl,
+  Link,
   TextField,
   Typography,
 } from "@mui/material";
@@ -19,17 +20,30 @@ import { useState } from "react";
 const Login: React.FC = () => {
   const [errorText, setErrorText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [defaultUsername, setDefaultUsername] = useState<string>("");
+  const [defaultPassword, setDefaultPassword] = useState<string>("");
+  const [isValidUsername, setIsValidUsername] = useState<boolean>(true);
+  const [isValidPassword, setIsValidPassword] = useState<boolean>(true);
   const { startExpiryCheck } = useUser();
   const navigate = useNavigate();
 
   const handleLogin = async (formData: FormData): Promise<void> => {
-    // Prevent state setter function being batched, allowing circular progress to appear.
-    flushSync(() => setLoading(true));
-
     const userData: UserData = {
       username: formData.get("username") as string,
       password: formData.get("password") as string,
     };
+
+    // Prevent fields from being cleared,
+    setDefaultUsername(userData.username);
+    setDefaultPassword(userData.password);
+
+    // Prevent state setter function being batched.
+    flushSync(() => {
+      setErrorText("");
+      setIsValidUsername(true);
+      setIsValidPassword(true);
+      setLoading(true);
+    });
 
     try {
       const response = await fetch(
@@ -48,6 +62,8 @@ const Login: React.FC = () => {
       // otherwise, just generalize the error message in the catch block.
       if (!response.ok) {
         if (response.status === StatusCodes.UNAUTHORIZED) {
+          setIsValidUsername(false);
+          setIsValidPassword(false);
           setErrorText("The username or password is incorrect");
           console.error("The username or password is incorrect");
         } else {
@@ -67,16 +83,15 @@ const Login: React.FC = () => {
         navigate(ROUTEPATHS.HOME);
       }
     } catch (error: unknown) {
+      setErrorText("Something went wrong, please try again later");
       if (error instanceof Error) {
         console.error("Error fetching data:", error.message);
       } else {
         console.error("An unknown error occured:", error);
       }
-
-      setErrorText("Something went wrong, please try again later"); // Generalize errors
     }
 
-    setLoading(false); // Stop the circular progress
+    setLoading(false);
   };
 
   return (
@@ -100,6 +115,9 @@ const Login: React.FC = () => {
               label="Username"
               type="text"
               margin="normal"
+              defaultValue={defaultUsername}
+              error={!isValidUsername}
+              disabled={loading}
               required
             ></TextField>
             <TextField
@@ -107,6 +125,9 @@ const Login: React.FC = () => {
               label="Password"
               type="password"
               margin="normal"
+              defaultValue={defaultPassword}
+              error={!isValidPassword}
+              disabled={loading}
               required
             ></TextField>
             <Button
@@ -120,7 +141,13 @@ const Login: React.FC = () => {
             >
               {loading ? "" : "Login"}
             </Button>
-            <Typography variant="body1" color="error" pt={2}>
+            <Typography variant="body1" textAlign="center" mt={2}>
+              Don't have an account?{" "}
+              <Link href={ROUTEPATHS.SIGNUP} underline="none">
+                Sign up
+              </Link>
+            </Typography>
+            <Typography variant="body1" color="error" textAlign="center" mt={1}>
               {errorText}
             </Typography>
           </FormControl>
