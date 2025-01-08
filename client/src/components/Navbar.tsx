@@ -6,11 +6,12 @@ import { useUser } from "./UserProvider";
 
 const Navbar: React.FC = () => {
   const { username } = useUser();
-
   const navigate = useNavigate();
+
   const handleRedirectToHome = (): void => {
     navigate(ROUTEPATHS.HOME);
   };
+
   const handleRedirectToLogin = (): void => {
     navigate(ROUTEPATHS.LOGIN);
   };

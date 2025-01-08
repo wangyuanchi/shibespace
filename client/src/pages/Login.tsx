@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ErrorResponse, User, UserData } from "../types/shibespaceAPI";
-import { signalLogin, useUser } from "../components/UserProvider";
+import { setSession, useUser } from "../components/UserProvider";
 
 import { ROUTEPATHS } from "../types/types";
 import { StatusCodes } from "http-status-codes";
@@ -19,12 +19,12 @@ import { useState } from "react";
 
 const Login: React.FC = () => {
   const [errorText, setErrorText] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
   const [defaultUsername, setDefaultUsername] = useState<string>("");
   const [defaultPassword, setDefaultPassword] = useState<string>("");
   const [isValidUsername, setIsValidUsername] = useState<boolean>(true);
   const [isValidPassword, setIsValidPassword] = useState<boolean>(true);
-  const { startExpiryCheck } = useUser();
+  const [loading, setLoading] = useState<boolean>(false);
+  const { startSessionCheck } = useUser();
   const navigate = useNavigate();
 
   const handleLogin = async (formData: FormData): Promise<void> => {
@@ -33,11 +33,11 @@ const Login: React.FC = () => {
       password: formData.get("password") as string,
     };
 
-    // Prevent fields from being cleared,
+    // Prevent fields from being cleared
     setDefaultUsername(userData.username);
     setDefaultPassword(userData.password);
 
-    // Prevent state setter function being batched.
+    // Prevent state setter functions from being batched.
     flushSync(() => {
       setErrorText("");
       setIsValidUsername(true);
@@ -58,7 +58,7 @@ const Login: React.FC = () => {
         }
       );
 
-      // Handle the relevant errors based on shibespaceAPI,
+      // Handle the relevant errors based on the shibespaceAPI,
       // otherwise, just generalize the error message in the catch block.
       if (!response.ok) {
         if (response.status === StatusCodes.UNAUTHORIZED) {
@@ -73,13 +73,10 @@ const Login: React.FC = () => {
       } else {
         const user = (await response.json()) as User;
 
-        // Signal a login by storing the username with calculated jwt expiry timing
-        // according to shibespaceAPI in local storage and starting the expiry check
-        // to allow this signal to be detected.
-        signalLogin(user.username);
-        startExpiryCheck();
-
-        // Redirect back to the home page
+        // Set the session and the corresponding check for it,
+        // then redirect back to the home page.
+        setSession(user.username);
+        startSessionCheck();
         navigate(ROUTEPATHS.HOME);
       }
     } catch (error: unknown) {

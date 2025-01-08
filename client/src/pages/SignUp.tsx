@@ -16,13 +16,13 @@ import { useState } from "react";
 
 const SignUp: React.FC = () => {
   const [errorText, setErrorText] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [usernameError, setUsernameError] = useState<string>("");
   const [defaultUsername, setDefaultUsername] = useState<string>("");
   const [defaultPassword, setDefaultPassword] = useState<string>("");
   const [isValidUsername, setIsValidUsername] = useState<boolean>(true);
   const [isValidPassword, setIsValidPassword] = useState<boolean>(true);
   const [signUpSuccess, setSignUpSuccess] = useState<boolean>(false);
-  const [usernameTaken, setUsernameTaken] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSignUp = async (formData: FormData): Promise<void> => {
     const userData: UserData = {
@@ -34,7 +34,7 @@ const SignUp: React.FC = () => {
     setDefaultUsername(userData.username);
     setDefaultPassword(userData.password);
 
-    // Prevent state setter function being batched.
+    // Prevent state setter functions from being batched.
     flushSync(() => {
       setErrorText("");
       setIsValidUsername(true);
@@ -48,7 +48,7 @@ const SignUp: React.FC = () => {
     ) {
       if (userData.username.length < 3 || userData.username.length > 20) {
         setIsValidUsername(false);
-        setUsernameTaken(false);
+        setUsernameError("Username must be between 3 and 20 characters long");
       }
       if (userData.password.length < 8) {
         setIsValidPassword(false);
@@ -77,7 +77,7 @@ const SignUp: React.FC = () => {
       if (!response.ok) {
         if (response.status === StatusCodes.CONFLICT) {
           setIsValidUsername(false);
-          setUsernameTaken(true);
+          setUsernameError("Username is already taken");
           console.error("Username is already taken");
         } else {
           const errorResponse = (await response.json()) as ErrorResponse;
@@ -127,13 +127,7 @@ const SignUp: React.FC = () => {
                 margin="normal"
                 defaultValue={defaultUsername}
                 error={!isValidUsername}
-                helperText={
-                  isValidUsername
-                    ? null
-                    : usernameTaken
-                    ? "Username is already taken"
-                    : "Username must be between 3 and 20 characters long"
-                }
+                helperText={isValidUsername ? null : usernameError}
                 disabled={loading}
                 required
               ></TextField>

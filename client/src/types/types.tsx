@@ -4,7 +4,7 @@ export const ROUTEPATHS = {
   SIGNUP: "/signup",
 } as const;
 
-export interface usernameAndExpiry {
+export interface Session {
   username: string;
   expiry: number;
 }
