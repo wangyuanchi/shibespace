@@ -22,11 +22,14 @@ const defaultUserContextValue: UserContextType = {
 
 const UserContext = createContext<UserContextType>(defaultUserContextValue);
 
+// This function must be used within a UserContext.Provider to properly access the context value
+export const useUser = () => useContext(UserContext);
+
 interface Props {
   children: ReactNode;
 }
 
-export const UserProvider: React.FC<Props> = ({ children }) => {
+const UserProvider: React.FC<Props> = ({ children }) => {
   const [username, setUsername] = useState<Username>(null);
   const [check, setCheck] = useState<boolean>(false);
 
@@ -69,14 +72,4 @@ export const UserProvider: React.FC<Props> = ({ children }) => {
   );
 };
 
-// This function must be used within a UserContext.Provider to properly access the context value
-export const useUser = () => useContext(UserContext);
-
-// This function creates and sets the session item in local storage
-export const setSession = (username: string): void => {
-  const session: Session = {
-    username: username,
-    expiry: Date.now() + 60 * 60 * 1000, // 1 hour from the present based on shibespaceAPI
-  };
-  localStorage.setItem("session", JSON.stringify(session));
-};
+export default UserProvider;

@@ -9,13 +9,14 @@ import {
   Typography,
 } from "@mui/material";
 import { ErrorResponse, User, UserData } from "../types/shibespaceAPI";
-import { setSession, useUser } from "../components/UserProvider";
 
 import { ROUTEPATHS } from "../types/types";
 import { StatusCodes } from "http-status-codes";
 import { flushSync } from "react-dom";
+import setSession from "../utils/setSession";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useUser } from "../components/UserProvider";
 
 const Login: React.FC = () => {
   const [errorText, setErrorText] = useState<string>("");

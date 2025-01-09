@@ -6,7 +6,7 @@ import Navbar from "./components/Navbar";
 import NotFound from "./pages/NotFound";
 import { ROUTEPATHS } from "./types/types";
 import SignUp from "./pages/SignUp";
-import { UserProvider } from "./components/UserProvider";
+import UserProvider from "./components/UserProvider";
 
 const App: React.FC = () => {
   return (
