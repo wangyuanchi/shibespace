@@ -35,7 +35,7 @@ func main() {
 		AllowedOrigins:   []string{vite}, // To send the jwt cookie
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
+		ExposedHeaders:   []string{"Link", "X-Total-Count"},
 		AllowCredentials: true, // To send the jwt cookie
 		MaxAge:           300,
 	}))

@@ -1,9 +1,10 @@
 import { Box, CircularProgress, Container, Typography } from "@mui/material";
 import { ErrorResponse, Thread } from "../types/shibespaceAPI";
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 
 import { StatusCodes } from "http-status-codes";
-import ThreadPreview from "../components/ThreadPreview";
+import TagFilter from "../components/TagFilter";
+import Threads from "../components/Threads";
 
 type Action =
   | { type: "loading" }
@@ -16,7 +17,7 @@ interface State {
   error: boolean;
 }
 
-const initialState: State = {
+const initialThreadsState: State = {
   loading: false,
   threads: null,
   error: false,
@@ -36,14 +37,24 @@ const reducer = (state: State, action: Action): State => {
 };
 
 const Home: React.FC = () => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [threadsState, dispatch] = useReducer(reducer, initialThreadsState);
+  const [threadsTotalCount, setThreadsTotalCount] = useState<number>(0);
+
+  // Defaults according to shibespaceAPI for /threads endpoint queries
+  // This will be used to trigger useEffect() to get the relevant information
+  const [tags, setTags] = useState<string[]>([]);
+  const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
     const fetchThreads = async (): Promise<void> => {
       dispatch({ type: "loading" });
       try {
         const response = await fetch(
-          import.meta.env.VITE_SHIBESPACEAPI_BASEURL + "/threads"
+          import.meta.env.VITE_SHIBESPACEAPI_BASEURL +
+            "/threads?tags=" +
+            tags.join(",") +
+            "&page=" +
+            page
         );
 
         if (!response.ok) {
@@ -51,9 +62,14 @@ const Home: React.FC = () => {
           throw new Error(errorResponse.error);
         } else {
           if (response.status === StatusCodes.NO_CONTENT) {
+            // If there is no content, we do not need to get "x-total-count"
             dispatch({ type: "success", payload: [] });
           } else {
             const threads = (await response.json()) as Thread[];
+
+            // This is used to calculate the number pages required to display all threads
+            setThreadsTotalCount(Number(response.headers.get("x-total-count")));
+
             dispatch({ type: "success", payload: threads });
           }
         }
@@ -67,11 +83,7 @@ const Home: React.FC = () => {
       }
     };
     fetchThreads();
-  }, []);
-
-  const mapThreadsToElements = (threads: Thread[]): JSX.Element[] => {
-    return threads.map((t) => <ThreadPreview key={t.id} {...t} />);
-  };
+  }, [tags, page]);
 
   return (
     <Container
@@ -84,29 +96,45 @@ const Home: React.FC = () => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
+          alignItems: "start",
         }}
       >
-        {state.loading ? <CircularProgress size={40} color="primary" /> : null}
-        {state.threads ? (
-          state.threads.length ? (
-            <>
-              <Typography variant="h4" gutterBottom>
-                Latest Threads
-              </Typography>
-              {mapThreadsToElements(state.threads)}
-            </>
-          ) : (
-            <Typography variant="body1">
-              Uh-oh! You tried to find a thread that doesn't exist.
+        {" "}
+        <Typography variant="h4" textAlign="center" width="100%" mb={2}>
+          Threads
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <TagFilter
+            tags={tags}
+            setTags={setTags}
+            setPage={setPage}
+            threads={threadsState.threads}
+          />
+          {/* Only one of these 3 states can be active at one time */}
+          {threadsState.loading ? (
+            <CircularProgress size={40} color="primary" />
+          ) : null}
+          {threadsState.threads ? (
+            <Threads
+              threads={threadsState.threads}
+              threadsTotalCount={threadsTotalCount}
+              page={page}
+              setPage={setPage}
+            />
+          ) : null}
+          {threadsState.error ? (
+            <Typography variant="body1" color="error">
+              Something went wrong, please try again later
             </Typography>
-          )
-        ) : null}
-        {state.error ? (
-          <Typography variant="body1" color="error">
-            Something went wrong, please try again later
-          </Typography>
-        ) : null}
+          ) : null}
+        </Box>
       </Box>
     </Container>
   );

@@ -2,18 +2,16 @@ import {
   Card,
   CardActionArea,
   CardContent,
+  Chip,
   Stack,
   Typography,
 } from "@mui/material";
 import { Thread, UserInfo } from "../types/shibespaceAPI";
 import { useEffect, useState } from "react";
 
-import Tag from "./Tag";
 import convertToRelativeTime from "../utils/convertToRelativeTime";
 
-interface Props extends Thread {}
-
-const ThreadPreview: React.FC<Props> = (props) => {
+const ThreadPreview: React.FC<Thread> = (props) => {
   const [username, setUsername] = useState<string>("unknown user");
 
   useEffect(() => {
@@ -30,11 +28,6 @@ const ThreadPreview: React.FC<Props> = (props) => {
     fetchUsername();
   }, []);
 
-  const mapTagsToElements = (tags: string[]): JSX.Element[] => {
-    // Tags are unique according to shibespaceAPI
-    return tags.map((t) => <Tag key={t} value={t} />);
-  };
-
   return (
     <Card sx={{ width: { xs: 400, sm: 500, md: 800, lg: 1000 }, mb: 4 }}>
       <CardActionArea>
@@ -50,7 +43,9 @@ const ThreadPreview: React.FC<Props> = (props) => {
               : props.content.slice(0, 200) + "..."}
           </Typography>
           <Stack direction="row" spacing={1.5}>
-            {mapTagsToElements(props.tags)}
+            {props.tags.map((t) => (
+              <Chip key={t} label={t} size="small" /> // tag values are unique
+            ))}
           </Stack>
         </CardContent>
       </CardActionArea>
