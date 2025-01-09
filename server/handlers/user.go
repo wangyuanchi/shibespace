@@ -125,19 +125,22 @@ func (connection *DatabaseConnection) AuthenticateUserHandler(w http.ResponseWri
 }
 
 /*
-This handler allows users to get their own user information.
-They are not authorized to get any other user's information.
+This handler allows users to get user information based on the user ID.
 */
 func (connection *DatabaseConnection) GetUserInfoHandler(w http.ResponseWriter, r *http.Request) {
-	userID, statusCode, err := middleware.JWTCheckMatching(connection.DB, r, chi.URLParam(r, "user_id"))
+	id, err := uuid.Parse(chi.URLParam(r, "user_id"))
 	if err != nil {
-		response.RespondWithError(w, statusCode, fmt.Sprintf("Failed jwt matching check: %v", err))
+		response.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Invalid user ID: %v", err))
 		return
 	}
 
-	userInfo, err := connection.DB.GetUserInfo(r.Context(), userID)
+	userInfo, err := connection.DB.GetUserInfo(r.Context(), id)
 	if err != nil {
-		response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get user information: %v", err))
+		if err == sql.ErrNoRows {
+			response.RespondWithError(w, http.StatusNotFound, "The user does not exist")
+		} else {
+			response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get user information: %v", err))
+		}
 		return
 	}
 

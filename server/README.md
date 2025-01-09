@@ -118,9 +118,7 @@ Set-Cookie: jwt=<Header>.<Payload>.<Signature>; HttpOnly
 
 **Description:** Gets a single user.
 
-**Authentication Requirements:** Users can only get their own information.
-
-**Parameter Requirements:** NA
+**Parameter Requirements:** `user_id` must be convertable to a UUID
 
 **Example Response:**
 
@@ -134,7 +132,7 @@ HTTP/1.1 200 OK
 
 **Relevant Errors:**
 
-`HTTP/1.1 401 Unauthorized`: Please refer to [authentication errors](#authentication-errors).
+`HTTP/1.1 404 Not Found`: The user does not exist
 
 ### threads
 
@@ -176,8 +174,8 @@ HTTP/1.1 201 Created
   "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   "tags": ["important", "starred"],
   "creator_id": "00000000-0000-0000-0000-000000000000",
-  "created_timestamp": "1970-01-01 00:00:00",
-  "updated_timestamp": "1970-01-01 00:00:00",
+  "created_timestamp": "1970-01-01 00:00:00+00",
+  "updated_timestamp": "1970-01-01 00:00:00+00",
 }
 ```
 
@@ -214,8 +212,8 @@ HTTP/1.1 200 OK
     "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     "tags": ["important", "starred"],
     "creator_id": "00000000-0000-0000-0000-000000000000",
-    "created_timestamp": "1970-01-01 00:00:00",
-    "updated_timestamp": "1970-01-01 00:00:00",
+    "created_timestamp": "1970-01-01 00:00:00+00",
+    "updated_timestamp": "1970-01-01 00:00:00+00",
     }
 ]
 ```
@@ -240,8 +238,8 @@ HTTP/1.1 200 OK
   "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   "tags": ["important", "starred"],
   "creator_id": "00000000-0000-0000-0000-000000000000",
-  "created_timestamp": "1970-01-01 00:00:00",
-  "updated_timestamp": "1970-01-01 00:00:00",
+  "created_timestamp": "1970-01-01 00:00:00+00",
+  "updated_timestamp": "1970-01-01 00:00:00+00",
 }
 ```
 
@@ -275,7 +273,7 @@ HTTP/1.1 200 OK
 HTTP/1.1 200 OK
 {
   "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  "updated_timestamp": "1970-01-01 00:00:00"
+  "updated_timestamp": "1970-01-01 00:00:00+00"
 }
 ```
 
@@ -341,8 +339,8 @@ HTTP/1.1 201 Created
   "content": "that is so cool",
   "thread_id": 1,
   "creator_id": "00000000-0000-0000-0000-000000000000",
-  "created_timestamp": "1970-01-01 00:00:00",
-  "updated_timestamp": "1970-01-01 00:00:00",
+  "created_timestamp": "1970-01-01 00:00:00+00",
+  "updated_timestamp": "1970-01-01 00:00:00+00",
 }
 ```
 
@@ -378,8 +376,8 @@ HTTP/1.1 200 OK
     "content": "that is so cool",
     "thread_id": 1,
     "creator_id": "00000000-0000-0000-0000-000000000000",
-    "created_timestamp": "1970-01-01 00:00:00",
-    "updated_timestamp": "1970-01-01 00:00:00",
+    "created_timestamp": "1970-01-01 00:00:00+00",
+    "updated_timestamp": "1970-01-01 00:00:00+00",
     }
 ]
 ```
@@ -418,7 +416,7 @@ HTTP/1.1 204 No Content
 HTTP/1.1 200 OK
 {
   "content": "this is not cool",
-  "updated_timestamp": "1970-01-01 00:00:00"
+  "updated_timestamp": "1970-01-01 00:00:00+00"
 }
 ```
 
