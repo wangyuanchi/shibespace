@@ -162,7 +162,7 @@ HTTP/1.1 200 OK
 
 - `title` _string_: Must be between 1 and 255 characters long
 - `content` _string_: Must be at least 1 character long
-- `tags` _string[]_: Must have at most 5 elements, with the length of each element between 1 and 35 characters long
+- `tags` _string[]_: Must have at most 5 elements that are all together unique, with the length of each element between 1 and 35 characters long
 
 **Example Response:**
 
@@ -191,7 +191,7 @@ HTTP/1.1 201 Created
 
 **Query Requirements:**
 
-- `tags` _Default: []_: Must have at most 5 string segments separated with commas (CSV), with the length of each segment between 1 and 35 characters long
+- `tags` _Default: []_: Must have at most 5 string segments that are all together unique and separated with commas (CSV), with the length of each segment between 1 and 35 characters long
 - `page` _Default: 1_: String must be convertable to an integer that has a value of at least 1
 - `limit` _Default: 10_: String must be convertable to an integer that has a value of at least 1
 

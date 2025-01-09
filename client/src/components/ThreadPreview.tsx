@@ -31,6 +31,7 @@ const ThreadPreview: React.FC<Props> = (props) => {
   }, []);
 
   const mapTagsToElements = (tags: string[]): JSX.Element[] => {
+    // Tags are unique according to shibespaceAPI
     return tags.map((t) => <Tag key={t} value={t} />);
   };
 

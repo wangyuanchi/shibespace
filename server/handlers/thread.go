@@ -190,7 +190,7 @@ func (connection *DatabaseConnection) DeleteThreadHandler(w http.ResponseWriter,
 This function checks if the length of the title is between 1 and 255 characters.
 It also checks if the length of the content is at least 1 character.
 Lastly, it checks that the tags slice is not nil and that
-there are at most 5 tags, each between 1 and 35 characters.
+there are at most 5 tags that are all together unique, each between 1 and 35 characters
 */
 func threadDataValidation(threadData threadData) error {
 	title := threadData.Title
@@ -213,10 +213,18 @@ func threadDataValidation(threadData threadData) error {
 		return errors.New("number of tags must be at most 5")
 	}
 
+	seen := make(map[string]bool)
+
 	for _, tag := range tags {
+		if seen[tag] {
+			return errors.New("tags must be unique")
+		}
+
 		if len(tag) < 1 || len(tag) > 35 {
 			return errors.New("all tags must be between 1 and 35 characters long")
 		}
+
+		seen[tag] = true
 	}
 
 	return nil
