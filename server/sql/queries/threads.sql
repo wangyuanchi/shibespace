@@ -27,3 +27,7 @@ SELECT * FROM threads
 WHERE tags @> $1::VARCHAR(35)[]
 ORDER BY updated_timestamp DESC 
 LIMIT $2 OFFSET $3;
+
+-- name: GetThreadsPaginatedCount :one
+SELECT COUNT(*) FROM threads
+WHERE tags @> $1::VARCHAR(35)[];

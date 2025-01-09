@@ -205,6 +205,7 @@ HTTP/1.1 201 Created
 
 ```json
 HTTP/1.1 200 OK
+x-total-count: 100
 [
     {
     "id": 1,
@@ -370,6 +371,7 @@ HTTP/1.1 201 Created
 
 ```json
 HTTP/1.1 200 OK
+x-total-count: 100
 [
     {
     "id": 1,

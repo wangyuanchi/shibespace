@@ -143,6 +143,18 @@ func (q *Queries) GetThreadsPaginated(ctx context.Context, arg GetThreadsPaginat
 	return items, nil
 }
 
+const getThreadsPaginatedCount = `-- name: GetThreadsPaginatedCount :one
+SELECT COUNT(*) FROM threads
+WHERE tags @> $1::VARCHAR(35)[]
+`
+
+func (q *Queries) GetThreadsPaginatedCount(ctx context.Context, dollar_1 []string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getThreadsPaginatedCount, pq.Array(dollar_1))
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const updateThreadContent = `-- name: UpdateThreadContent :one
 UPDATE threads
 SET content = $2, updated_timestamp = CURRENT_TIMESTAMP

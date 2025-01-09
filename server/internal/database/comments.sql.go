@@ -113,6 +113,18 @@ func (q *Queries) GetCommentsPaginated(ctx context.Context, arg GetCommentsPagin
 	return items, nil
 }
 
+const getCommentsPaginatedCount = `-- name: GetCommentsPaginatedCount :one
+SELECT COUNT(*) FROM comments
+WHERE thread_id = $1
+`
+
+func (q *Queries) GetCommentsPaginatedCount(ctx context.Context, threadID int32) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getCommentsPaginatedCount, threadID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const updateCommentContent = `-- name: UpdateCommentContent :one
 UPDATE comments
 SET content = $2, updated_timestamp = CURRENT_TIMESTAMP

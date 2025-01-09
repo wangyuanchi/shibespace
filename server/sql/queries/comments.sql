@@ -23,3 +23,7 @@ SELECT * FROM comments
 WHERE thread_id = $1
 ORDER BY created_timestamp ASC 
 LIMIT $2 OFFSET $3;
+
+-- name: GetCommentsPaginatedCount :one
+SELECT COUNT(*) FROM comments
+WHERE thread_id = $1;

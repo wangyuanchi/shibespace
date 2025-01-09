@@ -16,6 +16,7 @@ import (
 This handler first validates the 'tags' (CSV), 'page' and 'limit' query.
 Then, it gets the threads using the queries and sort based on the latest updated thread.
 The response may be a 204 status code (no content).
+The total count is included in the header as x-total-count
 */
 func (connection *DatabaseConnection) GetThreadsPaginatedHandler(w http.ResponseWriter, r *http.Request) {
 	tags, err := getAndValidateTags(r)
@@ -46,6 +47,13 @@ func (connection *DatabaseConnection) GetThreadsPaginatedHandler(w http.Response
 		return
 	}
 
+	threadsCount, err := connection.DB.GetThreadsPaginatedCount(r.Context(), tags)
+	if err != nil {
+		response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get threads count: %v", err))
+		return
+	}
+	w.Header().Set("x-total-count", strconv.Itoa(int(threadsCount)))
+
 	if threads == nil {
 		response.RespondWithJSON(w, http.StatusNoContent, struct{}{})
 	} else {
@@ -57,6 +65,7 @@ func (connection *DatabaseConnection) GetThreadsPaginatedHandler(w http.Response
 This handler first validates the 'thread_id' (compulsory), 'page' and 'limit' query.
 Next, it gets the comments using the queries and sorts based on the first created comment.
 The response may be a 204 status code (no content).
+The total count is included in the header as x-total-count
 */
 func (connection *DatabaseConnection) GetCommentsPaginatedHandler(w http.ResponseWriter, r *http.Request) {
 	id, statusCode, err := getAndValidateThread(connection, r)
@@ -86,6 +95,13 @@ func (connection *DatabaseConnection) GetCommentsPaginatedHandler(w http.Respons
 		response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get comments: %v", err))
 		return
 	}
+
+	commentsCount, err := connection.DB.GetCommentsPaginatedCount(r.Context(), int32(id))
+	if err != nil {
+		response.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to get comments count: %v", err))
+		return
+	}
+	w.Header().Set("x-total-count", strconv.Itoa(int(commentsCount)))
 
 	if comments == nil {
 		response.RespondWithJSON(w, http.StatusNoContent, struct{}{})
