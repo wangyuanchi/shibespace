@@ -6,6 +6,7 @@ import Navbar from "./components/Navbar";
 import NotFound from "./pages/NotFound";
 import { ROUTEPATHS } from "./types/types";
 import SignUp from "./pages/SignUp";
+import ThreadID from "./pages/ThreadID";
 import UserProvider from "./components/UserProvider";
 
 const App: React.FC = () => {
@@ -17,6 +18,10 @@ const App: React.FC = () => {
           <Route path={ROUTEPATHS.HOME} element={<Home />} />
           <Route path={ROUTEPATHS.LOGIN} element={<Login />} />
           <Route path={ROUTEPATHS.SIGNUP} element={<SignUp />} />
+          <Route
+            path={ROUTEPATHS.THREADS + "/:thread_id"}
+            element={<ThreadID />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

@@ -1,18 +1,25 @@
 import {
+  Box,
   Card,
   CardActionArea,
   CardContent,
   Chip,
-  Stack,
   Typography,
 } from "@mui/material";
 import { Thread, UserInfo } from "../types/shibespaceAPI";
 import { useEffect, useState } from "react";
 
+import { ROUTEPATHS } from "../types/types";
 import convertToRelativeTime from "../utils/convertToRelativeTime";
+import { useNavigate } from "react-router-dom";
 
 const ThreadPreview: React.FC<Thread> = (props) => {
   const [username, setUsername] = useState<string>("unknown user");
+  const navigate = useNavigate();
+
+  const viewThreadID = (): void => {
+    navigate(ROUTEPATHS.THREADS + "/" + props.id);
+  };
 
   useEffect(() => {
     const fetchUsername = async (): Promise<void> => {
@@ -30,7 +37,7 @@ const ThreadPreview: React.FC<Thread> = (props) => {
 
   return (
     <Card sx={{ width: { xs: 400, sm: 500, md: 800, lg: 1000 }, mb: 4 }}>
-      <CardActionArea>
+      <CardActionArea onClick={viewThreadID}>
         <CardContent>
           <Typography variant="h6">{props.title}</Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }} mb={1}>
@@ -42,11 +49,19 @@ const ThreadPreview: React.FC<Thread> = (props) => {
               ? props.content
               : props.content.slice(0, 200) + "..."}
           </Typography>
-          <Stack direction="row" spacing={1.5}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              gap: "10px 10px",
+            }}
+            mb={2}
+          >
             {props.tags.map((t) => (
               <Chip key={t} label={t} size="small" /> // tag values are unique
             ))}
-          </Stack>
+          </Box>
         </CardContent>
       </CardActionArea>
     </Card>
