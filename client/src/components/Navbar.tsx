@@ -32,12 +32,12 @@ const Navbar: React.FC = () => {
           >
             shibespace
           </Typography>
-          {username ? (
-            <>
-              <Box sx={{ display: "flex", gap: 2 }}>
-                <Button color="inherit" onClick={handleRedirectToHome}>
-                  Threads
-                </Button>
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Button color="inherit" onClick={handleRedirectToHome}>
+              Threads
+            </Button>
+            {username ? (
+              <>
                 <Box
                   sx={{
                     width: "40px",
@@ -48,13 +48,13 @@ const Navbar: React.FC = () => {
                 >
                   <img src={getUserIcon(username)} alt="user icon" />
                 </Box>
-              </Box>
-            </>
-          ) : (
-            <Button color="inherit" onClick={handleRedirectToLogin}>
-              Login
-            </Button>
-          )}
+              </>
+            ) : (
+              <Button color="inherit" onClick={handleRedirectToLogin}>
+                Login
+              </Button>
+            )}
+          </Box>
         </Toolbar>
       </AppBar>
     </Box>
