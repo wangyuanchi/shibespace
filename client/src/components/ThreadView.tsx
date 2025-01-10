@@ -1,14 +1,100 @@
-import { Box, Chip, Typography } from "@mui/material";
-import { Thread, UserInfo } from "../types/shibespaceAPI";
-import { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Chip,
+  FormControl,
+  IconButton,
+  TextField,
+  Typography,
+} from "@mui/material";
+import {
+  ErrorResponse,
+  Thread,
+  ThreadContent,
+  UserInfo,
+} from "../types/shibespaceAPI";
+import { useEffect, useRef, useState } from "react";
 
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import Grid from "@mui/material/Grid2";
+import { StatusCodes } from "http-status-codes";
+import checkSurfacePerms from "../utils/checkPermissions";
 import convertToRelativeTime from "../utils/convertToRelativeTime";
 import getUserIcon from "../utils/getUserIcon";
 import { grey } from "@mui/material/colors";
 
-const ThreadView: React.FC<Thread> = (props) => {
+interface Props extends Thread {
+  runUpdate: () => void;
+}
+
+const ThreadView: React.FC<Props> = (props) => {
   const [username, setUsername] = useState<string>("unknown user");
+  const [editing, setEditing] = useState<boolean>(false);
+  const [editError, setEditError] = useState<string>("");
+  const [defaultContent, setDefaultContent] = useState<string>(props.content);
+  const submitEditButton = useRef<HTMLButtonElement | null>(null);
+
+  const toggleEdit = (): void => {
+    setEditError(""); // Reset on every toggle
+    setDefaultContent(props.content); // Reset on every toggle
+    setEditing((prevEditing) => !prevEditing);
+  };
+
+  const handleEdit = async (formData: FormData): Promise<void> => {
+    const threadContent: ThreadContent = {
+      content: formData.get("content") as string,
+    };
+
+    // So that content remains if an error occurs
+    setDefaultContent(threadContent.content);
+
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_SHIBESPACEAPI_BASEURL +
+          "/threads/" +
+          props.id +
+          "/content",
+        {
+          method: "PATCH",
+          credentials: "include",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(threadContent),
+        }
+      );
+
+      if (!response.ok) {
+        const errorResponse = (await response.json()) as ErrorResponse;
+
+        if (
+          (response.status === StatusCodes.UNAUTHORIZED &&
+            errorResponse.error.includes("cookie 'jwt' is not found")) ||
+          errorResponse.error.includes(
+            "mismatch between user ID from jwt and target ID"
+          )
+        ) {
+          setEditError("You do not have permission to edit this thread");
+          console.error("You do not have permission to edit this thread");
+        } else {
+          throw new Error(errorResponse.error);
+        }
+      } else {
+        toggleEdit();
+        props.runUpdate();
+      }
+    } catch (error: unknown) {
+      setEditError("Something went wrong, please try again later");
+      if (error instanceof Error) {
+        console.error("Error fetching data:", error.message);
+      } else {
+        console.error("An unknown error occured:", error);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchUsername = async (): Promise<void> => {
@@ -71,12 +157,97 @@ const ThreadView: React.FC<Thread> = (props) => {
             </Box>
           </Grid>
           <Grid size={{ xs: 12, sm: 9 }}>
-            <Typography variant="body1" mb={1} sx={{ wordBreak: "break-word" }}>
-              {props.content}
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              last updated {convertToRelativeTime(props.updated_timestamp)}
-            </Typography>
+            <Box
+              display="flex"
+              flexDirection="column"
+              justifyContent="space-between"
+              height="100%"
+            >
+              {editing ? (
+                <form action={handleEdit}>
+                  <FormControl fullWidth>
+                    <TextField
+                      name="content"
+                      defaultValue={defaultContent}
+                      error={editError !== ""}
+                      helperText={editError}
+                      multiline
+                      required
+                    ></TextField>
+                    {/* Don't show this button as we are using the one outside the form */}
+                    <Button
+                      ref={submitEditButton}
+                      type="submit"
+                      sx={{ display: "none" }}
+                    ></Button>
+                  </FormControl>
+                </form>
+              ) : (
+                <Typography
+                  variant="body1"
+                  mb={1}
+                  // To load line breaks
+                  sx={{ wordBreak: "break-word", whiteSpace: "pre-wrap" }}
+                >
+                  {props.content}
+                </Typography>
+              )}
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                pt={1}
+              >
+                <Typography variant="body2" color="textSecondary">
+                  last updated {convertToRelativeTime(props.updated_timestamp)}
+                </Typography>
+                {/* Only display the "edit" and "delete" buttons for the users that have permission*/}
+                {checkSurfacePerms(username) ? (
+                  <Box display="flex" justifyContent="space-between" gap={1}>
+                    {editing ? (
+                      <IconButton
+                        // We need to do this as the button is outside the form
+                        onClick={() => {
+                          submitEditButton.current?.click();
+                        }}
+                        sx={{
+                          cursor: "pointer",
+                          color: grey[600],
+                          "&:hover": {
+                            color: grey[800],
+                          },
+                        }}
+                      >
+                        <CheckIcon />
+                      </IconButton>
+                    ) : null}
+                    <IconButton
+                      onClick={toggleEdit}
+                      sx={{
+                        cursor: "pointer",
+                        color: grey[600],
+                        "&:hover": {
+                          color: grey[800],
+                        },
+                      }}
+                    >
+                      {editing ? <CloseIcon /> : <EditIcon />}
+                    </IconButton>
+                    <IconButton
+                      sx={{
+                        cursor: "pointer",
+                        color: grey[600],
+                        "&:hover": {
+                          color: grey[800],
+                        },
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                ) : null}
+              </Box>
+            </Box>
           </Grid>
         </Grid>
       </Box>

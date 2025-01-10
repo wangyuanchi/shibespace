@@ -4,7 +4,6 @@ import {
   FormControl,
   InputAdornment,
   TextField,
-  Typography,
 } from "@mui/material";
 
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";

@@ -31,3 +31,7 @@ export interface ThreadData {
   content: string;
   tags: string[];
 }
+
+export interface ThreadContent {
+  content: string;
+}

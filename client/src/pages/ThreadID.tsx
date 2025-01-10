@@ -1,6 +1,6 @@
 import { Box, CircularProgress } from "@mui/material";
 import { Container, Typography } from "@mui/material";
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 
 import { ErrorResponse } from "../types/shibespaceAPI";
 import { StatusCodes } from "http-status-codes";
@@ -40,7 +40,13 @@ const reducer = (state: State, action: Action): State => {
 
 const ThreadID: React.FC = () => {
   const [threadState, dispatch] = useReducer(reducer, initialThreadState);
+  const [update, setUpdate] = useState<boolean>(false);
   const { thread_id } = useParams();
+
+  // This re-triggers the useEffect() below to reflect updated content
+  const runUpdate = (): void => {
+    setUpdate((prevUpdate) => !prevUpdate);
+  };
 
   useEffect(() => {
     const fetchThread = async (): Promise<void> => {
@@ -84,7 +90,7 @@ const ThreadID: React.FC = () => {
       }
     };
     fetchThread();
-  }, []);
+  }, [update]);
 
   return (
     <Container
@@ -97,13 +103,16 @@ const ThreadID: React.FC = () => {
         sx={{
           display: "flex",
           justifyContent: "center",
+          mb: 10,
         }}
       >
         {/* Only one of these 3 states can be active at one time */}
         {threadState.loading ? (
           <CircularProgress size={40} color="primary" />
         ) : null}
-        {threadState.thread ? <ThreadView {...threadState.thread} /> : null}
+        {threadState.thread ? (
+          <ThreadView {...threadState.thread} runUpdate={runUpdate} />
+        ) : null}
         {threadState.error ? (
           <Typography variant="body1" color="error">
             {threadState.error}

@@ -1,6 +1,7 @@
 import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
 
 import { ROUTEPATHS } from "../types/types";
+import getUserIcon from "../utils/getUserIcon";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "./UserProvider";
 
@@ -32,7 +33,23 @@ const Navbar: React.FC = () => {
             shibespace
           </Typography>
           {username ? (
-            <Typography variant="h6">Welcome, {username}!</Typography>
+            <>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <Button color="inherit" onClick={handleRedirectToHome}>
+                  Threads
+                </Button>
+                <Box
+                  sx={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                  }}
+                >
+                  <img src={getUserIcon(username)} alt="user icon" />
+                </Box>
+              </Box>
+            </>
           ) : (
             <Button color="inherit" onClick={handleRedirectToLogin}>
               Login
