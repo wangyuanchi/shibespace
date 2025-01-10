@@ -1,8 +1,11 @@
-import { Box, Chip, FormControl, TextField } from "@mui/material";
+import { Box, Button, Chip, FormControl, TextField } from "@mui/material";
 
+import { ROUTEPATHS } from "../types/types";
 import { Thread } from "../types/shibespaceAPI";
 import { flushSync } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useUser } from "./UserProvider";
 
 interface Props {
   tags: string[];
@@ -11,10 +14,12 @@ interface Props {
   threads: Thread[] | null;
 }
 
-const Tags: React.FC<Props> = ({ tags, setTags, setPage, threads }) => {
+const TagFilter: React.FC<Props> = ({ tags, setTags, setPage, threads }) => {
   const [errorText, setErrorText] = useState<string>("");
   const [defaultTag, setDefaultTag] = useState<string>("");
   const [isValidTag, setIsValidTag] = useState<boolean>(true);
+  const navigate = useNavigate();
+  const { username } = useUser();
 
   const mapTagsToElements = (tags: string[]): JSX.Element[] => {
     return tags.map((t) => (
@@ -62,22 +67,42 @@ const Tags: React.FC<Props> = ({ tags, setTags, setPage, threads }) => {
         width: { xs: 400, sm: 500, md: 800, lg: 1000 },
       }}
     >
-      <form action={handleNewTag}>
-        <FormControl sx={{ mb: 2 }}>
-          <TextField
-            name="tag-filter"
-            type="text"
-            label="Tag Filter"
-            variant="standard"
-            defaultValue={defaultTag}
-            error={!isValidTag}
-            helperText={errorText}
-            // There cannot be more than 5 tags according to shibespaceAPI
-            // We also want it to be enabled when threads are loaded
-            disabled={tags.length >= 5 || threads === null}
-          />
-        </FormControl>
-      </form>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <form action={handleNewTag}>
+          <FormControl sx={{ display: "flex", flexDirection: "row", mb: 2 }}>
+            <TextField
+              name="tag-filter"
+              type="text"
+              label="Filter tags"
+              variant="standard"
+              defaultValue={defaultTag}
+              error={!isValidTag}
+              helperText={errorText}
+              // There cannot be more than 5 tags according to shibespaceAPI
+              // We also want it to be enabled only when threads are loaded
+              disabled={tags.length >= 5 || threads === null}
+            />
+          </FormControl>
+        </form>
+        {/* New thread button only displayed when user is logged in */}
+        {username ? (
+          <Button
+            variant="contained"
+            sx={{ height: "fit-content" }}
+            onClick={() => {
+              navigate(ROUTEPATHS.THREADSNEW);
+            }}
+          >
+            New Thread
+          </Button>
+        ) : null}
+      </Box>
       <Box
         sx={{
           display: "flex",
@@ -93,4 +118,4 @@ const Tags: React.FC<Props> = ({ tags, setTags, setPage, threads }) => {
   );
 };
 
-export default Tags;
+export default TagFilter;

@@ -39,12 +39,18 @@ const ThreadPreview: React.FC<Thread> = (props) => {
     <Card sx={{ width: { xs: 400, sm: 500, md: 800, lg: 1000 }, mb: 4 }}>
       <CardActionArea onClick={viewThreadID}>
         <CardContent>
-          <Typography variant="h6">{props.title}</Typography>
+          <Typography variant="h6" sx={{ wordBreak: "break-word" }}>
+            {props.title}
+          </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }} mb={1}>
             by {username} • last updated{" "}
             {convertToRelativeTime(props.updated_timestamp)}
           </Typography>
-          <Typography variant="body1" mb={1.25}>
+          <Typography
+            variant="body1"
+            mb={1.25}
+            sx={{ wordBreak: "break-word" }}
+          >
             {props.content.length <= 200
               ? props.content
               : props.content.slice(0, 200) + "..."}
@@ -56,7 +62,6 @@ const ThreadPreview: React.FC<Thread> = (props) => {
               flexWrap: "wrap",
               gap: "10px 10px",
             }}
-            mb={2}
           >
             {props.tags.map((t) => (
               <Chip key={t} label={t} size="small" /> // tag values are unique

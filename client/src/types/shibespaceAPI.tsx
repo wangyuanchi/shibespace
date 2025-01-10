@@ -2,9 +2,8 @@ export interface ErrorResponse {
   error: string;
 }
 
-export interface UserData {
+export interface User {
   username: string;
-  password: string;
 }
 
 export interface UserInfo {
@@ -12,8 +11,9 @@ export interface UserInfo {
   username: string;
 }
 
-export interface User {
+export interface UserData {
   username: string;
+  password: string;
 }
 
 export interface Thread {
@@ -24,4 +24,10 @@ export interface Thread {
   creator_id: string;
   created_timestamp: string;
   updated_timestamp: string;
+}
+
+export interface ThreadData {
+  title: string;
+  content: string;
+  tags: string[];
 }

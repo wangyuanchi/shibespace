@@ -71,7 +71,7 @@ const ThreadView: React.FC<Thread> = (props) => {
             </Box>
           </Grid>
           <Grid size={{ xs: 12, sm: 9 }}>
-            <Typography variant="body1" mb={1}>
+            <Typography variant="body1" mb={1} sx={{ wordBreak: "break-word" }}>
               {props.content}
             </Typography>
             <Typography variant="body2" color="textSecondary">
