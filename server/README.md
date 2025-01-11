@@ -48,6 +48,7 @@ HTTP/1.1 200 OK
 
 - [POST /users](#post-users)
 - [POST /users/auth](#post-usersauth)
+- [GET /users/unauth](#get-usersunauth)
 - [GET /users/{user_id}](#get-usersuser_id)
 
 #### `POST /users`
@@ -104,7 +105,7 @@ HTTP/1.1 201 Created
 
 ```json
 HTTP/1.1 200 OK
-Set-Cookie: jwt=<Header>.<Payload>.<Signature>; HttpOnly
+Set-Cookie: jwt=<Header>.<Payload>.<Signature>; Path=/; Expires=<InOneHour>; HttpOnly
 {
   "username": "admin"
 }
@@ -113,6 +114,17 @@ Set-Cookie: jwt=<Header>.<Payload>.<Signature>; HttpOnly
 **Relevant Errors:**
 
 `HTTP/1.1 401 Unauthorized`: The username or password is incorrect
+
+#### `GET /users/unauth`
+
+**Description:** Unauthenticates a user.
+
+**Example Response:**
+
+```json
+HTTP/1.1 204 No Content
+Set-Cookie: jwt=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly
+```
 
 #### `GET /users/{user_id}`
 

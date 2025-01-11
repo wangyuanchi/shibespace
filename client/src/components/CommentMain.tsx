@@ -57,13 +57,7 @@ const CommentMain: React.FC<Props> = (props) => {
 
       if (!response.ok) {
         const errorResponse = (await response.json()) as ErrorResponse;
-        if (
-          (response.status === StatusCodes.UNAUTHORIZED &&
-            errorResponse.error.includes("cookie 'jwt' is not found")) ||
-          errorResponse.error.includes(
-            "mismatch between user ID from jwt and target ID"
-          )
-        ) {
+        if (response.status === StatusCodes.UNAUTHORIZED) {
           setEditError("You do not have permission to edit this comment");
           console.error("You do not have permission to edit this comment");
         } else {
@@ -144,6 +138,7 @@ const CommentMain: React.FC<Props> = (props) => {
                     helperText={editError}
                     multiline
                     required
+                    sx={{ background: "white" }}
                   ></TextField>
                   {/* Don't show this button as we are using the one outside the form */}
                   <Button

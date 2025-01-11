@@ -92,12 +92,7 @@ const Comments: React.FC<Props> = ({
 
       if (!response.ok) {
         const errorResponse = (await response.json()) as ErrorResponse;
-
-        // There could be multiple reasons for unauthorized
-        if (
-          response.status === StatusCodes.UNAUTHORIZED &&
-          errorResponse.error.includes("cookie 'jwt' is not found")
-        ) {
+        if (response.status === StatusCodes.UNAUTHORIZED) {
           setErrorText("You must be logged in to create a new comment");
           console.error("You must be logged in to create a new comment");
         } else {

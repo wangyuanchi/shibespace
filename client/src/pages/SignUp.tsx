@@ -112,7 +112,7 @@ const SignUp: React.FC = () => {
   return (
     <Container
       sx={{
-        mt: { xs: "56px", sm: "64px" },
+        mt: "64px",
         pt: 4,
       }}
     >

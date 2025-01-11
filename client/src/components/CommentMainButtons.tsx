@@ -53,13 +53,7 @@ const CommentMainButtons: React.FC<Props> = ({
       if (!response.ok) {
         const errorResponse = (await response.json()) as ErrorResponse;
 
-        if (
-          (response.status === StatusCodes.UNAUTHORIZED &&
-            errorResponse.error.includes("cookie 'jwt' is not found")) ||
-          errorResponse.error.includes(
-            "mismatch between user ID from jwt and target ID"
-          )
-        ) {
+        if (response.status === StatusCodes.UNAUTHORIZED) {
           setErrorText("You do not have permission to delete this thread");
           console.error("You do not have permission to delete this thread");
         } else {

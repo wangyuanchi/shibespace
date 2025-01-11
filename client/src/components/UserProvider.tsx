@@ -62,6 +62,8 @@ const UserProvider: React.FC<Props> = ({ children }) => {
         }, 5000);
         return () => clearInterval(intervalID);
       }
+    } else {
+      setUsername(null); // Logout
     }
   }, [check]);
 

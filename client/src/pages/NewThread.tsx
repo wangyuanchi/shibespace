@@ -68,12 +68,7 @@ const NewThread: React.FC = () => {
 
       if (!response.ok) {
         const errorResponse = (await response.json()) as ErrorResponse;
-
-        // There could be multiple reasons for unauthorized
-        if (
-          response.status === StatusCodes.UNAUTHORIZED &&
-          errorResponse.error.includes("cookie 'jwt' is not found")
-        ) {
+        if (response.status === StatusCodes.UNAUTHORIZED) {
           setErrorText("You must be logged in to create a new thread");
           console.error("You must be logged in to create a new thread");
         } else {
@@ -99,7 +94,7 @@ const NewThread: React.FC = () => {
   return (
     <Container
       sx={{
-        mt: { xs: "56px", sm: "64px" },
+        mt: "64px",
         p: 4,
       }}
     >
