@@ -1,11 +1,11 @@
-import { Box, CircularProgress } from "@mui/material";
+import { Box, Chip, CircularProgress } from "@mui/material";
 import { Container, Typography } from "@mui/material";
 import { useEffect, useReducer, useState } from "react";
 
 import { ErrorResponse } from "../types/shibespaceAPI";
 import { StatusCodes } from "http-status-codes";
 import { Thread } from "../types/shibespaceAPI";
-import ThreadView from "../components/ThreadView";
+import ThreadMain from "../components/ThreadMain";
 import { useParams } from "react-router-dom";
 
 type Action =
@@ -38,7 +38,7 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const ThreadID: React.FC = () => {
+const SingleThread: React.FC = () => {
   const [threadState, dispatch] = useReducer(reducer, initialThreadState);
   const [update, setUpdate] = useState<boolean>(false);
   const { thread_id } = useParams();
@@ -111,7 +111,24 @@ const ThreadID: React.FC = () => {
           <CircularProgress size={40} color="primary" />
         ) : null}
         {threadState.thread ? (
-          <ThreadView {...threadState.thread} runUpdate={runUpdate} />
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography variant="h4" mb={1} sx={{ wordBreak: "break-word" }}>
+              {threadState.thread.title}{" "}
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+                gap: "10px 10px",
+              }}
+            >
+              {threadState.thread.tags.map((t) => (
+                <Chip key={t} label={t} size="small" />
+              ))}
+            </Box>
+            <ThreadMain {...threadState.thread} runUpdate={runUpdate} />
+          </Box>
         ) : null}
         {threadState.error ? (
           <Typography variant="body1" color="error">
@@ -123,4 +140,4 @@ const ThreadID: React.FC = () => {
   );
 };
 
-export default ThreadID;
+export default SingleThread;

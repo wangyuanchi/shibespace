@@ -7,7 +7,7 @@ import NewThread from "./pages/NewThread.tsx";
 import NotFound from "./pages/NotFound";
 import { ROUTEPATHS } from "./types/types";
 import SignUp from "./pages/SignUp";
-import ThreadID from "./pages/ThreadID";
+import SingleThread from "./pages/SingleThread.tsx";
 import UserProvider from "./components/UserProvider";
 
 const App: React.FC = () => {
@@ -22,7 +22,7 @@ const App: React.FC = () => {
           <Route path={ROUTEPATHS.THREADSNEW} element={<NewThread />} />
           <Route
             path={ROUTEPATHS.THREADS + "/:thread_id"}
-            element={<ThreadID />}
+            element={<SingleThread />}
           />
           <Route path="*" element={<NotFound />} />
         </Routes>
