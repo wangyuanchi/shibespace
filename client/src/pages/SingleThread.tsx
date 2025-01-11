@@ -104,7 +104,7 @@ const SingleThread: React.FC = () => {
         sx={{
           display: "flex",
           justifyContent: "center",
-          mb: 10,
+          mb: 4,
         }}
       >
         {/* Only one of these 3 states can be active at one time */}

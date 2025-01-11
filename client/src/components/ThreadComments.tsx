@@ -106,6 +106,7 @@ const ThreadComments: React.FC<Props> = ({ thread_id }) => {
           page={page}
           setPage={setPage}
           runUpdate={runUpdate}
+          thread_id={thread_id}
         />
       ) : null}
       {commentsState.error ? (

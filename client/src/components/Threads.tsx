@@ -32,6 +32,8 @@ const Threads: React.FC<Props> = ({
           <Pagination
             count={totalPageCount}
             page={page} // So that the page remains as previously set
+            hidePrevButton={true}
+            hideNextButton={true}
             sx={{ mb: 10 }}
             onChange={(_event, value: number) => setPage(value)}
           />

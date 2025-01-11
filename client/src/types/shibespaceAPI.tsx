@@ -45,6 +45,11 @@ export interface Comment {
   updated_timestamp: string;
 }
 
+export interface CommentData {
+  content: string;
+  thread_id: number;
+}
+
 export interface CommentContent {
   content: string;
 }
