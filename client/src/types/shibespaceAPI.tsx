@@ -35,3 +35,16 @@ export interface ThreadData {
 export interface ThreadContent {
   content: string;
 }
+
+export interface Comment {
+  id: number;
+  content: string;
+  thread_id: number;
+  creator_id: string;
+  created_timestamp: string;
+  updated_timestamp: string;
+}
+
+export interface CommentContent {
+  content: string;
+}

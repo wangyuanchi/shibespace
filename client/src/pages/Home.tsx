@@ -51,25 +51,21 @@ const Home: React.FC = () => {
       try {
         const response = await fetch(
           import.meta.env.VITE_SHIBESPACEAPI_BASEURL +
-            "/threads?tags=" +
-            tags.join(",") +
-            "&page=" +
-            page
+            `/threads?tags=${tags.join(",")}&page=${page}`
         );
 
         if (!response.ok) {
           const errorResponse = (await response.json()) as ErrorResponse;
           throw new Error(errorResponse.error);
         } else {
+          // This is used to calculate the number pages required to display all threads
+          setThreadsTotalCount(Number(response.headers.get("x-total-count")));
+
           if (response.status === StatusCodes.NO_CONTENT) {
             // If there is no content, we do not need to get "x-total-count"
             dispatch({ type: "success", payload: [] });
           } else {
             const threads = (await response.json()) as Thread[];
-
-            // This is used to calculate the number pages required to display all threads
-            setThreadsTotalCount(Number(response.headers.get("x-total-count")));
-
             dispatch({ type: "success", payload: threads });
           }
         }

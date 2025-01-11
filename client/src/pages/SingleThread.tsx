@@ -5,6 +5,7 @@ import { useEffect, useReducer, useState } from "react";
 import { ErrorResponse } from "../types/shibespaceAPI";
 import { StatusCodes } from "http-status-codes";
 import { Thread } from "../types/shibespaceAPI";
+import ThreadComments from "../components/ThreadComments";
 import ThreadMain from "../components/ThreadMain";
 import { useParams } from "react-router-dom";
 
@@ -128,6 +129,7 @@ const SingleThread: React.FC = () => {
               ))}
             </Box>
             <ThreadMain {...threadState.thread} runUpdate={runUpdate} />
+            <ThreadComments thread_id={threadState.thread.id} />
           </Box>
         ) : null}
         {threadState.error ? (

@@ -1,25 +1,26 @@
 import { Box, Button, FormControl, TextField, Typography } from "@mui/material";
-import {
-  ErrorResponse,
-  Thread,
-  ThreadContent,
-  UserInfo,
-} from "../types/shibespaceAPI";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
+import { Comment } from "../types/shibespaceAPI";
+import { CommentContent } from "../types/shibespaceAPI";
+import CommentMainButtons from "./CommentMainButtons";
+import { ErrorResponse } from "../types/shibespaceAPI";
 import Grid from "@mui/material/Grid2";
 import { StatusCodes } from "http-status-codes";
-import ThreadMainButtons from "./ThreadMainButtons";
-import { blue } from "@mui/material/colors";
+import { UserInfo } from "../types/shibespaceAPI";
 import checkSurfacePerms from "../utils/checkPermissions";
 import convertToRelativeTime from "../utils/convertToRelativeTime";
 import getUserIcon from "../utils/getUserIcon";
+import { grey } from "@mui/material/colors";
+import { useEffect } from "react";
 
-interface Props extends Thread {
+interface Props extends Comment {
   runUpdate: () => void;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
+  singleLastComment: boolean;
 }
 
-const ThreadMain: React.FC<Props> = (props) => {
+const CommentMain: React.FC<Props> = (props) => {
   const [username, setUsername] = useState<string>("unknown user");
   const [editing, setEditing] = useState<boolean>(false);
   const [editError, setEditError] = useState<string>("");
@@ -33,24 +34,24 @@ const ThreadMain: React.FC<Props> = (props) => {
   };
 
   const handleEdit = async (formData: FormData): Promise<void> => {
-    const threadContent: ThreadContent = {
+    const commentContent: CommentContent = {
       content: formData.get("content") as string,
     };
 
     // So that content remains if an error occurs
-    setDefaultContent(threadContent.content);
+    setDefaultContent(commentContent.content);
 
     try {
       const response = await fetch(
         import.meta.env.VITE_SHIBESPACEAPI_BASEURL +
-          `/threads/${props.id}/content`,
+          `/comments/${props.id}/content`,
         {
           method: "PATCH",
           credentials: "include",
           headers: {
             "content-type": "application/json",
           },
-          body: JSON.stringify(threadContent),
+          body: JSON.stringify(commentContent),
         }
       );
 
@@ -63,8 +64,8 @@ const ThreadMain: React.FC<Props> = (props) => {
             "mismatch between user ID from jwt and target ID"
           )
         ) {
-          setEditError("You do not have permission to edit this thread");
-          console.error("You do not have permission to edit this thread");
+          setEditError("You do not have permission to edit this comment");
+          console.error("You do not have permission to edit this comment");
         } else {
           throw new Error(errorResponse.error);
         }
@@ -97,16 +98,7 @@ const ThreadMain: React.FC<Props> = (props) => {
   }, []);
 
   return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        mt: 2,
-        p: 2,
-        background: blue[50],
-        border: 1,
-        borderColor: "grey.500",
-      }}
-    >
+    <Box sx={{ width: "100%", mt: 2, p: 2, background: grey[100] }}>
       <Grid container spacing={1}>
         <Grid size={{ xs: 12, sm: 3 }}>
           <Box
@@ -182,11 +174,14 @@ const ThreadMain: React.FC<Props> = (props) => {
               </Typography>
               {/* Only display the "edit" and "delete" buttons for the users that have permission*/}
               {checkSurfacePerms(username) ? (
-                <ThreadMainButtons
+                <CommentMainButtons
                   editing={editing}
                   toggleEdit={toggleEdit}
                   submitEditButton={submitEditButton}
-                  thread_id={props.id}
+                  comment_id={props.id}
+                  setPage={props.setPage}
+                  runUpdate={props.runUpdate}
+                  singleLastComment={props.singleLastComment}
                 />
               ) : null}
             </Box>
@@ -197,4 +192,4 @@ const ThreadMain: React.FC<Props> = (props) => {
   );
 };
 
-export default ThreadMain;
+export default CommentMain;

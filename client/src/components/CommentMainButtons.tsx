@@ -14,33 +14,36 @@ import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { ErrorResponse } from "../types/shibespaceAPI";
-import { ROUTEPATHS } from "../types/types";
 import { StatusCodes } from "http-status-codes";
 import { grey } from "@mui/material/colors";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 interface Props {
   editing: boolean;
   toggleEdit: () => void;
   submitEditButton: React.MutableRefObject<HTMLButtonElement | null>;
-  thread_id: number;
+  comment_id: number;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
+  runUpdate: () => void;
+  singleLastComment: boolean;
 }
 
-const ThreadMainButtons: React.FC<Props> = ({
+const CommentMainButtons: React.FC<Props> = ({
   editing,
   toggleEdit,
   submitEditButton,
-  thread_id,
+  comment_id,
+  setPage,
+  runUpdate,
+  singleLastComment,
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [errorText, setErrorText] = useState<string>("");
-  const navigate = useNavigate();
 
   const handleDelete = async (): Promise<void> => {
     try {
       const response = await fetch(
-        import.meta.env.VITE_SHIBESPACEAPI_BASEURL + "/threads/" + thread_id,
+        import.meta.env.VITE_SHIBESPACEAPI_BASEURL + "/comments/" + comment_id,
         {
           method: "DELETE",
           credentials: "include",
@@ -63,7 +66,9 @@ const ThreadMainButtons: React.FC<Props> = ({
           throw new Error(errorResponse.error);
         }
       } else {
-        navigate(ROUTEPATHS.HOME);
+        // Redirect to second last page if the comment deleted is the single last comment
+        setPage((prevPage) => (singleLastComment ? prevPage - 1 : prevPage));
+        runUpdate();
       }
     } catch (error: unknown) {
       setErrorText("Something went wrong, please try again later");
@@ -122,7 +127,7 @@ const ThreadMainButtons: React.FC<Props> = ({
         <DeleteIcon />
       </IconButton>
       <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>{"Delete this thread?"}</DialogTitle>
+        <DialogTitle>{"Delete this comment?"}</DialogTitle>
         <DialogContent sx={{ pb: 1 }}>
           <DialogContentText>You cannot undo this action.</DialogContentText>
           {errorText ? (
@@ -140,4 +145,4 @@ const ThreadMainButtons: React.FC<Props> = ({
   );
 };
 
-export default ThreadMainButtons;
+export default CommentMainButtons;
