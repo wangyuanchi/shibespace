@@ -180,6 +180,7 @@ const ThreadMain: React.FC<Props> = (props) => {
                   editing={editing}
                   toggleEdit={toggleEdit}
                   submitEditButton={submitEditButton}
+                  thread_id={props.id}
                 />
               ) : null}
             </Box>
