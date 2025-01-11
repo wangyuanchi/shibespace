@@ -92,7 +92,16 @@ const CommentMain: React.FC<Props> = (props) => {
   }, []);
 
   return (
-    <Box sx={{ width: "100%", mt: 2, p: 2, background: grey[100] }}>
+    <Box
+      sx={{
+        width: "100%",
+        mt: 2,
+        p: 2,
+        background: grey[100],
+        border: 1,
+        borderColor: "grey.500",
+      }}
+    >
       <Grid container spacing={1}>
         <Grid size={{ xs: 12, sm: 3 }}>
           <Box

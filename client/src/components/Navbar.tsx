@@ -6,7 +6,6 @@ import {
   Menu,
   MenuItem,
   Toolbar,
-  Typography,
 } from "@mui/material";
 
 import Logout from "@mui/icons-material/Logout";
@@ -62,17 +61,9 @@ const Navbar: React.FC = () => {
         <Toolbar
           sx={{ display: "flex", justifyContent: "space-between", p: 1.5 }}
         >
-          <Typography
-            variant="h6"
-            sx={{
-              ":hover": {
-                cursor: "pointer",
-              },
-            }}
-            onClick={handleRedirectToHome}
-          >
-            shibespace
-          </Typography>
+          <span onClick={handleRedirectToHome} className="logo">
+            SHIBESPACE
+          </span>
           <Box sx={{ display: "flex", gap: 1 }}>
             <Button color="inherit" onClick={handleRedirectToHome}>
               Threads

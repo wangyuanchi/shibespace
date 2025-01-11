@@ -1,5 +1,22 @@
+@import url("https://fonts.googleapis.com/css2?family=ADLaM+Display&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+body {
+  background-color: #ffffff;
+  opacity: 1;
+  background-image: radial-gradient(#eeeeee 2px, transparent 2px),
+    radial-gradient(#eeeeee 2px, #ffffff 2px);
+  background-size: 80px 80px;
+  background-position: 0 0, 40px 40px;
+}
+
+.logo {
+  font-family: "Adlam Display", sans-serif;
+  font-size: 20px;
+  cursor: pointer;
 }
