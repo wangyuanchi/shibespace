@@ -118,6 +118,8 @@ func (connection *DatabaseConnection) AuthenticateUserHandler(w http.ResponseWri
 		Path:     "/",
 		Expires:  expire,
 		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	response.RespondWithJSON(w, http.StatusOK, map[string]string{
@@ -135,6 +137,8 @@ func UnauthenticateUserHandler(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	response.RespondWithJSON(w, http.StatusNoContent, struct{}{})
