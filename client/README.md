@@ -1,4 +1,4 @@
-# shibespace showcase
+# shibespace features showcase
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ The example below shows how a thread would look for different screens.
 
 ### Authentication
 
-Upon login, a JSON web token is sent to the client, and for every action which requires authentication that a user carries out, this token is sent together in the request.
+Upon login, a **JSON web token** is sent to the client, and for every action which requires authentication that a user carries out, this token is sent together in the request.
 
 Effort was put in to prevent instances where a user can carry out an action which they are not authenticated for.
 
@@ -45,6 +45,6 @@ Both threads and comments are paginated, with a maximum of 10 instances on a sin
 
 ### Basic Functionalities
 
-The basic functionalities include CRUD operations on threads and comments. Their behaviour is similar and some examples are shown below.
+The basic functionalities include **CRUD operations** on threads and comments. Their behaviour is similar and some examples are shown below.
 
 ![basic-functionalities.png](/client/src/assets/basic-functionalities.png)
