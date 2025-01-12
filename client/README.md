@@ -9,7 +9,7 @@
 
 ---
 
-### Responsive web design
+### Responsive Design
 
 The example below shows how a thread would look for different screens.
 
