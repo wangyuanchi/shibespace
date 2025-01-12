@@ -9,7 +9,7 @@
 
 ---
 
-#### Responsive web design
+### Responsive Design
 
 The example below shows how a thread would look for different screens.
 
@@ -17,7 +17,7 @@ The example below shows how a thread would look for different screens.
 
 ---
 
-#### Authentication
+### Authentication
 
 Upon login, a JSON web token is sent to the client, and for every action which requires authentication that a user carries out, this token is sent together in the request.
 
@@ -35,7 +35,7 @@ However, if a user still manages to bypass the system, there is error handling i
 
 ---
 
-#### Tags and Pagination
+### Tags and Pagination
 
 Every thread can have at most 5 tags, which the user can define on creation of the thread. These tags can be filtered, which allow other users to find a thread more easily.
 
@@ -43,7 +43,7 @@ Both threads and comments are paginated, with a maximum of 10 instances on a sin
 
 ![tags-and-pagination.png](/client/src/assets/tags-and-pagination.png)
 
-#### Basic Functionalities
+### Basic Functionalities
 
 The basic functionalities include CRUD operations on threads and comments. Their behaviour is similar and some examples are shown below.
 
