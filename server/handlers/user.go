@@ -6,11 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"regexp"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	"github.com/lib/pq"
 	"github.com/wangyuanchi/shibespace/server/internal/database"
 	"github.com/wangyuanchi/shibespace/server/middleware"
@@ -112,15 +114,28 @@ func (connection *DatabaseConnection) AuthenticateUserHandler(w http.ResponseWri
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "jwt",
-		Value:    jwt,
-		Path:     "/",
-		Expires:  expire,
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
-	})
+	godotenv.Load(".env")
+	production := os.Getenv("PRODUCTION") == "TRUE"
+
+	if production {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "jwt",
+			Value:    jwt,
+			Path:     "/",
+			Expires:  expire,
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteNoneMode,
+		})
+	} else {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "jwt",
+			Value:    jwt,
+			Path:     "/",
+			Expires:  expire,
+			HttpOnly: true,
+		})
+	}
 
 	response.RespondWithJSON(w, http.StatusOK, map[string]string{
 		"username": userData.Username,
@@ -131,15 +146,28 @@ func (connection *DatabaseConnection) AuthenticateUserHandler(w http.ResponseWri
 This handler sends an expired cookie to unauthenticate a user.
 */
 func UnauthenticateUserHandler(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     "jwt",
-		Value:    "",
-		Path:     "/",
-		Expires:  time.Unix(0, 0),
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
-	})
+	godotenv.Load(".env")
+	production := os.Getenv("PRODUCTION") == "TRUE"
+
+	if production {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "jwt",
+			Value:    "",
+			Path:     "/",
+			Expires:  time.Unix(0, 0),
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteNoneMode,
+		})
+	} else {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "jwt",
+			Value:    "",
+			Path:     "/",
+			Expires:  time.Unix(0, 0),
+			HttpOnly: true,
+		})
+	}
 
 	response.RespondWithJSON(w, http.StatusNoContent, struct{}{})
 }
