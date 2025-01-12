@@ -14,7 +14,7 @@ import convertToRelativeTime from "../utils/convertToRelativeTime";
 import { useNavigate } from "react-router-dom";
 
 const ThreadPreview: React.FC<Thread> = (props) => {
-  const [username, setUsername] = useState<string>("unknown user");
+  const [username, setUsername] = useState<string>("");
   const navigate = useNavigate();
 
   const viewThreadID = (): void => {

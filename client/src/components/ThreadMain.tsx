@@ -20,7 +20,7 @@ interface Props extends Thread {
 }
 
 const ThreadMain: React.FC<Props> = (props) => {
-  const [username, setUsername] = useState<string>("unknown user");
+  const [username, setUsername] = useState<string>("");
   const [editing, setEditing] = useState<boolean>(false);
   const [editError, setEditError] = useState<string>("");
   const [defaultContent, setDefaultContent] = useState<string>(props.content);
