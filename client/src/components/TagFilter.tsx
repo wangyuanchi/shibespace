@@ -64,12 +64,14 @@ const TagFilter: React.FC<Props> = ({ tags, setTags, setPage, threads }) => {
   return (
     <Box
       sx={{
-        width: { xs: 400, sm: 500, md: 800, lg: 1000 },
+        width: { xs: 300, sm: 500, md: 800, lg: 1000 },
       }}
     >
       <Box
         sx={{
           display: "flex",
+          flexDirection: { xs: "column-reverse", sm: "row" },
+          gap: { xs: 2, sm: 0 },
           justifyContent: "space-between",
           alignItems: "center",
         }}

@@ -129,7 +129,7 @@ const SignUp: React.FC = () => {
           </Typography>
         ) : (
           <form action={handleSignUp}>
-            <FormControl sx={{ width: "435px" }}>
+            <FormControl sx={{ width: { xs: "300px", sm: "435px" } }}>
               <TextField
                 name="username"
                 label="Username"

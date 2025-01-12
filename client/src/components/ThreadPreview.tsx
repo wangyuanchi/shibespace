@@ -36,7 +36,7 @@ const ThreadPreview: React.FC<Thread> = (props) => {
   }, []);
 
   return (
-    <Card sx={{ width: { xs: 400, sm: 500, md: 800, lg: 1000 }, mb: 4 }}>
+    <Card sx={{ width: { xs: 300, sm: 500, md: 800, lg: 1000 }, mb: 4 }}>
       <CardActionArea onClick={viewThreadID}>
         <CardContent>
           <Typography variant="h6" sx={{ wordBreak: "break-word" }}>

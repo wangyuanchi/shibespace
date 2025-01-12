@@ -82,7 +82,11 @@ const Navbar: React.FC = () => {
                     <img
                       src={getUserIcon(username)}
                       alt="user icon"
-                      loading="eager"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
                     />
                   </Box>
                 </Button>
