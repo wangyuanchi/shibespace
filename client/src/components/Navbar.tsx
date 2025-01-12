@@ -79,7 +79,12 @@ const Navbar: React.FC = () => {
                       overflow: "hidden",
                     }}
                   >
-                    <img src={getUserIcon(username)} alt="user icon" />
+                    <img
+                      src={getUserIcon(username)}
+                      alt="user icon"
+                      width="100"
+                      height="100"
+                    />
                   </Box>
                 </Button>
                 <Menu

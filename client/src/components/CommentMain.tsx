@@ -119,7 +119,12 @@ const CommentMain: React.FC<Props> = (props) => {
                 overflow: "hidden",
               }}
             >
-              <img src={getUserIcon(username)} alt="user icon" />
+              <img
+                src={getUserIcon(username)}
+                alt="user icon"
+                width="100"
+                height="100"
+              />
             </Box>
             <Typography
               variant="body1"
