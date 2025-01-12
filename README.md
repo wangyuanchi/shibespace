@@ -12,7 +12,7 @@
 
 shibespace is a **full stack web forum** made for the CVWO Winter Assignment.
 
-Click [here](https://github.com/wangyuanchi/shibespace/tree/main/client#shibespace-showcase) to view the full **shibespace features showcase**.
+Click [here](https://github.com/wangyuanchi/shibespace/tree/main/client#shibespace-features-showcase) to view the full **shibespace features showcase**.
 
 Click [here](https://github.com/wangyuanchi/shibespace/tree/main/server#shibespaceapi-documentation) to view the full **shibespaceAPI documentation**.
 
@@ -32,7 +32,7 @@ This app is deployed on **Render**. You can visit the page [here](https://shibes
 
 Take Note! This app is currently using the free version of Render. It may take around **1 minute to start up app completely**. In addition, the backend database is **deleted after 1 month** (last updated as of 12 Jan 2025), so things may not work as expected if the period is past.
 
-To fully explore the [functionalities](https://github.com/wangyuanchi/shibespace/tree/main/client#shibespace-showcase), you need to **create an account**.
+To fully explore the [functionalities](https://github.com/wangyuanchi/shibespace/tree/main/client#shibespace-features-showcase), you need to **create an account**.
 
 ---
 
