@@ -1,50 +1,50 @@
-# React + TypeScript + Vite
+# shibespace showcase
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Table of Contents
 
-Currently, two official plugins are available:
+1. [Responsive Design](#responsive-design)
+2. [Authentication](#authentication)
+3. [Tags and Pagination](#tags-and-pagination)
+4. [Basic Functionalities](#basic-functionalities)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+#### Responsive web design
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+The example below shows how a thread would look for different screens.
 
-- Configure the top-level `parserOptions` property like this:
+![responsive.png](/client/src/assets/responsive.png)
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+---
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+#### Authentication
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+Upon login, a JSON web token is sent to the client, and for every action which requires authentication that a user carries out, this token is sent together in the request.
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+Effort was put in to prevent instances where a user can carry out an action which they are not authenticated for.
+
+Examples include, but are not limited to:
+
+- "New Thread" button is not displayed for logged out users
+- Comment box not displayed for logged out users
+- Edit and delete buttons not shown to non-creators
+
+However, if a user still manages to bypass the system, there is error handling in place and appropriate indications back to the user.
+
+![authentication.png](/client/src/assets/authentication.png)
+
+---
+
+#### Tags and Pagination
+
+Every thread can have at most 5 tags, which the user can define on creation of the thread. These tags can be filtered, which allow other users to find a thread more easily.
+
+Both threads and comments are paginated, with a maximum of 10 instances on a single page.
+
+![tags-and-pagination.png](/client/src/assets/tags-and-pagination.png)
+
+#### Basic Functionalities
+
+The basic functionalities include CRUD operations on threads and comments. Their behaviour is similar and some examples are shown below.
+
+![basic-functionalities.png](/client/src/assets/basic-functionalities.png)
