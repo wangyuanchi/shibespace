@@ -82,8 +82,7 @@ const Navbar: React.FC = () => {
                     <img
                       src={getUserIcon(username)}
                       alt="user icon"
-                      width="100"
-                      height="100"
+                      loading="eager"
                     />
                   </Box>
                 </Button>

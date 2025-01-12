@@ -122,8 +122,7 @@ const CommentMain: React.FC<Props> = (props) => {
               <img
                 src={getUserIcon(username)}
                 alt="user icon"
-                width="100"
-                height="100"
+                loading="eager"
               />
             </Box>
             <Typography
