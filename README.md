@@ -10,9 +10,10 @@
 
 ## About
 
-Shibespace is a **full stack web forum** made for the CVWO Winter Assignment.
+shibespace is a **full stack web forum** made for the CVWO Winter Assignment.
 
 Click [here](https://github.com/wangyuanchi/shibespace/tree/main/client#shibespace-showcase) to view the full **shibespace features showcase**.
+
 Click [here](https://github.com/wangyuanchi/shibespace/tree/main/server#shibespaceapi-documentation) to view the full **shibespaceAPI documentation**.
 
 ## Tech Stack
