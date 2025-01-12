@@ -21,9 +21,9 @@ func main() {
 		log.Fatal("PORT is not found in the environment")
 	}
 
-	vite := os.Getenv("VITE_DEV_SERVER")
-	if vite == "" {
-		log.Fatal("VITE_DEV_SERVER is not found in the environment")
+	serverURL := os.Getenv("SERVER_URL")
+	if serverURL == "" {
+		log.Fatal("SERVER_URL is not found in the environment")
 	}
 
 	connection, close := database.GetConnection()
@@ -32,7 +32,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{vite}, // To send the jwt cookie
+		AllowedOrigins:   []string{serverURL}, // To send the jwt cookie
 		AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link", "X-Total-Count"},
