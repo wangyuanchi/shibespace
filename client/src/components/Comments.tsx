@@ -48,7 +48,11 @@ const Comments: React.FC<Props> = ({
     // This check allows us to redirect the user to the second last page
     // if they delete the single last comment
     let singleLastComment = false;
-    if (totalPageCount > 1 && (commentsTotalCount - 1) % 10 === 0) {
+    if (
+      totalPageCount > 1 &&
+      (commentsTotalCount - 1) % 10 === 0 &&
+      page === totalPageCount
+    ) {
       singleLastComment = true;
     }
 
