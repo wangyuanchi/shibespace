@@ -24,10 +24,12 @@ RETURNING *;
 
 -- name: GetThreadsPaginated :many
 SELECT * FROM threads
-WHERE tags @> $1::VARCHAR(35)[]
+WHERE ARRAY(SELECT LOWER(t) FROM UNNEST(tags) AS t) @> 
+ARRAY(SELECT LOWER(t) FROM UNNEST($1::VARCHAR(35)[]) AS t)
 ORDER BY updated_timestamp DESC 
 LIMIT $2 OFFSET $3;
 
 -- name: GetThreadsPaginatedCount :one
 SELECT COUNT(*) FROM threads
-WHERE tags @> $1::VARCHAR(35)[];
+WHERE ARRAY(SELECT LOWER(t) FROM UNNEST(tags) AS t) @> 
+ARRAY(SELECT LOWER(t) FROM UNNEST($1::VARCHAR(35)[]) AS t);

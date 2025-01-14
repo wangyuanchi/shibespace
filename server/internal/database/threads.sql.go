@@ -101,7 +101,8 @@ func (q *Queries) GetThreadCreatorID(ctx context.Context, id int32) (uuid.UUID, 
 
 const getThreadsPaginated = `-- name: GetThreadsPaginated :many
 SELECT id, title, content, tags, creator_id, created_timestamp, updated_timestamp FROM threads
-WHERE tags @> $1::VARCHAR(35)[]
+WHERE ARRAY(SELECT LOWER(t) FROM UNNEST(tags) AS t) @> 
+ARRAY(SELECT LOWER(t) FROM UNNEST($1::VARCHAR(35)[]) AS t)
 ORDER BY updated_timestamp DESC 
 LIMIT $2 OFFSET $3
 `
@@ -145,7 +146,8 @@ func (q *Queries) GetThreadsPaginated(ctx context.Context, arg GetThreadsPaginat
 
 const getThreadsPaginatedCount = `-- name: GetThreadsPaginatedCount :one
 SELECT COUNT(*) FROM threads
-WHERE tags @> $1::VARCHAR(35)[]
+WHERE ARRAY(SELECT LOWER(t) FROM UNNEST(tags) AS t) @> 
+ARRAY(SELECT LOWER(t) FROM UNNEST($1::VARCHAR(35)[]) AS t)
 `
 
 func (q *Queries) GetThreadsPaginatedCount(ctx context.Context, dollar_1 []string) (int64, error) {
