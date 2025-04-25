@@ -45,6 +45,8 @@ Both threads and comments are paginated, with a maximum of 10 instances on a sin
 
 ![tags-and-pagination.png](/client/src/assets/tags-and-pagination.png)
 
+---
+
 ### Basic Functionalities
 
 The basic functionalities include **CRUD operations** on threads and comments.
